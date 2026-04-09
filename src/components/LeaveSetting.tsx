@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -14,12 +14,19 @@ import {
   Settings
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import LeaveYearView from './LeaveYearView';
 
 interface LeaveSettingProps {
   onBack: () => void;
 }
 
 export default function LeaveSetting({ onBack }: LeaveSettingProps) {
+  const [activeSubView, setActiveSubView] = useState<string | null>(null);
+
+  if (activeSubView === 'leave-year') {
+    return <LeaveYearView onBack={() => setActiveSubView(null)} />;
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Breadcrumbs */}
@@ -67,7 +74,7 @@ export default function LeaveSetting({ onBack }: LeaveSettingProps) {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
           {[
-            { label: 'Leave Year', icon: Calendar, color: 'bg-blue-500' },
+            { label: 'Leave Year', icon: Calendar, color: 'bg-blue-500', onClick: () => setActiveSubView('leave-year') },
             { label: 'Leave Type', icon: Layers, color: 'bg-emerald-500' },
             { label: 'Leave Group', icon: Users, color: 'bg-purple-500' },
             { label: 'Leave Policy', icon: FileText, color: 'bg-rose-500' },
@@ -76,6 +83,7 @@ export default function LeaveSetting({ onBack }: LeaveSettingProps) {
           ].map((action, i) => (
             <button 
               key={i} 
+              onClick={action.onClick}
               className="flex flex-col items-center justify-center p-6 rounded-2xl border border-slate-100 hover:bg-slate-50 hover:border-indigo-100 transition-all group"
             >
               <div className={cn("p-4 rounded-2xl mb-4 group-hover:scale-110 transition-transform shadow-lg shadow-slate-100", action.color)}>

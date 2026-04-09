@@ -15,24 +15,22 @@ import {
   CreditCard,
   GraduationCap,
   Users2,
-  Languages,
   Bell,
   AlertCircle,
   Star,
   Activity,
   User,
-  Heart,
-  BookOpen,
-  Globe,
-  Smartphone,
-  Map,
-  FileCheck
+  Smartphone
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import EmployeeInfoView from './EmployeeInfoView';
 import BankInfoView from './BankInfoView';
 import FamilyInfoView from './FamilyInfoView';
 import EducationInfoView from './EducationInfoView';
+import EmploymentInfoView from './EmploymentInfoView';
+import ContactInfoView from './ContactInfoView';
+import SupervisorInfoView from './SupervisorInfoView';
+import DocumentPassportView from './DocumentPassportView';
 
 interface EmployeeProfileProps {
   employee: any;
@@ -56,6 +54,22 @@ export default function EmployeeProfile({ employee, onBack }: EmployeeProfilePro
 
   if (activeSubView === 'education') {
     return <EducationInfoView employee={employee} onBack={() => setActiveSubView(null)} />;
+  }
+
+  if (activeSubView === 'employment') {
+    return <EmploymentInfoView employee={employee} onBack={() => setActiveSubView(null)} />;
+  }
+
+  if (activeSubView === 'contact') {
+    return <ContactInfoView employee={employee} onBack={() => setActiveSubView(null)} />;
+  }
+
+  if (activeSubView === 'supervisor') {
+    return <SupervisorInfoView employee={employee} onBack={() => setActiveSubView(null)} />;
+  }
+
+  if (activeSubView === 'documents') {
+    return <DocumentPassportView employee={employee} onBack={() => setActiveSubView(null)} />;
   }
 
   return (
@@ -142,11 +156,10 @@ export default function EmployeeProfile({ employee, onBack }: EmployeeProfilePro
             { label: 'Bank Info', icon: CreditCard, color: 'bg-purple-500', onClick: () => setActiveSubView('bank') },
             { label: 'Family', icon: Users2, color: 'bg-pink-500', onClick: () => setActiveSubView('family') },
             { label: 'Education', icon: GraduationCap, color: 'bg-indigo-500', onClick: () => setActiveSubView('education') },
-            { label: 'Employment', icon: Briefcase, color: 'bg-orange-500' },
-            { label: 'Contact', icon: Smartphone, color: 'bg-teal-500' },
-            { label: 'Supervisor', icon: User, color: 'bg-sky-500' },
-            { label: 'Document & Passport', icon: FileText, color: 'bg-rose-500' },
-            { label: 'Language & Talent', icon: Globe, color: 'bg-amber-500' },
+            { label: 'Employment', icon: Briefcase, color: 'bg-orange-500', onClick: () => setActiveSubView('employment') },
+            { label: 'Contact', icon: Smartphone, color: 'bg-teal-500', onClick: () => setActiveSubView('contact') },
+            { label: 'Supervisor', icon: User, color: 'bg-sky-500', onClick: () => setActiveSubView('supervisor') },
+            { label: 'Document & Passport', icon: FileText, color: 'bg-rose-500', onClick: () => setActiveSubView('documents') },
           ].map((action, i) => (
             <button 
               key={i} 

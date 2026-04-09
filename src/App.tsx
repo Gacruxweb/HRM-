@@ -196,7 +196,7 @@ export default function App() {
         </main>
 
         <footer className="p-8 text-center text-slate-400 text-sm border-t border-slate-200 bg-white">
-          <p>© 2024 NexusHRM. All rights reserved. Built for modern HR teams.</p>
+          <p>© 2026 Siegecode HRM. All rights reserved. Built for modern HR teams.</p>
         </footer>
       </div>
     </div>
