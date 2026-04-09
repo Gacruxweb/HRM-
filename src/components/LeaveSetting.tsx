@@ -15,6 +15,10 @@ import {
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import LeaveYearView from './LeaveYearView';
+import LeaveTypeView from './LeaveTypeView';
+import LeaveGroupView from './LeaveGroupView';
+import HolidaySetupView from './HolidaySetupView';
+import { LeaveTypeRecord } from '../types/leave';
 
 interface LeaveSettingProps {
   onBack: () => void;
@@ -22,9 +26,37 @@ interface LeaveSettingProps {
 
 export default function LeaveSetting({ onBack }: LeaveSettingProps) {
   const [activeSubView, setActiveSubView] = useState<string | null>(null);
+  const [leaveTypes, setLeaveTypes] = useState<LeaveTypeRecord[]>([
+    { id: '1', name: 'Annual Leave', countType: 'Daily basis', paymentType: 'Paid', isMaternity: false, isParental: false, isEducation: false },
+    { id: '2', name: 'Sick Leave', countType: 'Daily basis', paymentType: 'Paid', isMaternity: false, isParental: false, isEducation: false },
+    { id: '3', name: 'Maternity Leave', countType: 'Daily basis', paymentType: 'Paid', isMaternity: true, isParental: false, isEducation: false },
+  ]);
 
   if (activeSubView === 'leave-year') {
     return <LeaveYearView onBack={() => setActiveSubView(null)} />;
+  }
+
+  if (activeSubView === 'leave-type') {
+    return (
+      <LeaveTypeView 
+        onBack={() => setActiveSubView(null)} 
+        records={leaveTypes}
+        setRecords={setLeaveTypes}
+      />
+    );
+  }
+
+  if (activeSubView === 'leave-group') {
+    return (
+      <LeaveGroupView 
+        onBack={() => setActiveSubView(null)} 
+        availableLeaveTypes={leaveTypes.map(t => t.name)}
+      />
+    );
+  }
+
+  if (activeSubView === 'holiday-setup') {
+    return <HolidaySetupView onBack={() => setActiveSubView(null)} />;
   }
 
   return (
@@ -75,10 +107,10 @@ export default function LeaveSetting({ onBack }: LeaveSettingProps) {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
           {[
             { label: 'Leave Year', icon: Calendar, color: 'bg-blue-500', onClick: () => setActiveSubView('leave-year') },
-            { label: 'Leave Type', icon: Layers, color: 'bg-emerald-500' },
-            { label: 'Leave Group', icon: Users, color: 'bg-purple-500' },
+            { label: 'Leave Type', icon: Layers, color: 'bg-emerald-500', onClick: () => setActiveSubView('leave-type') },
+            { label: 'Leave Group', icon: Users, color: 'bg-purple-500', onClick: () => setActiveSubView('leave-group') },
             { label: 'Leave Policy', icon: FileText, color: 'bg-rose-500' },
-            { label: 'Holiday Setup', icon: Palmtree, color: 'bg-amber-500' },
+            { label: 'Holiday Setup', icon: Palmtree, color: 'bg-amber-500', onClick: () => setActiveSubView('holiday-setup') },
             { label: 'Leave Status', icon: Activity, color: 'bg-teal-500' },
           ].map((action, i) => (
             <button 
