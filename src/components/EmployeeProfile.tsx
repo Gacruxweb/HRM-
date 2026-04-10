@@ -20,7 +20,8 @@ import {
   Star,
   Activity,
   User,
-  Smartphone
+  Smartphone,
+  BarChart3
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import EmployeeInfoView from './EmployeeInfoView';
@@ -31,13 +32,16 @@ import EmploymentInfoView from './EmploymentInfoView';
 import ContactInfoView from './ContactInfoView';
 import SupervisorInfoView from './SupervisorInfoView';
 import DocumentPassportView from './DocumentPassportView';
+import PayrollView from './PayrollView';
+import PerformanceView from './PerformanceView';
 
 interface EmployeeProfileProps {
   employee: any;
   onBack: () => void;
+  isDashboard?: boolean;
 }
 
-export default function EmployeeProfile({ employee, onBack }: EmployeeProfileProps) {
+export default function EmployeeProfile({ employee, onBack, isDashboard = false }: EmployeeProfileProps) {
   const [activeSubView, setActiveSubView] = useState<string | null>(null);
 
   if (activeSubView === 'info') {
@@ -72,19 +76,36 @@ export default function EmployeeProfile({ employee, onBack }: EmployeeProfilePro
     return <DocumentPassportView employee={employee} onBack={() => setActiveSubView(null)} />;
   }
 
+  if (activeSubView === 'payroll') {
+    return <PayrollView employee={employee} onBack={() => setActiveSubView(null)} />;
+  }
+
+  if (activeSubView === 'performance') {
+    return <PerformanceView employee={employee} onBack={() => setActiveSubView(null)} />;
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Breadcrumbs */}
-      <div className="flex items-center gap-2 text-sm text-slate-500">
-        <button onClick={onBack} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-          <ArrowLeft className="w-4 h-4" />
-        </button>
-        <span className="hover:text-slate-900 cursor-pointer" onClick={onBack}>Employees</span>
-        <ChevronRight className="w-4 h-4" />
-        <span className="hover:text-slate-900 cursor-pointer">Employee Profile</span>
-        <ChevronRight className="w-4 h-4" />
-        <span className="text-indigo-600 font-bold">{employee.name}</span>
-      </div>
+      {!isDashboard && (
+        <div className="flex items-center gap-2 text-sm text-slate-500">
+          <button onClick={onBack} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+          <span className="hover:text-slate-900 cursor-pointer" onClick={onBack}>Employees</span>
+          <ChevronRight className="w-4 h-4" />
+          <span className="hover:text-slate-900 cursor-pointer">Employee Profile</span>
+          <ChevronRight className="w-4 h-4" />
+          <span className="text-indigo-600 font-bold">{employee.name}</span>
+        </div>
+      )}
+
+      {isDashboard && (
+        <div>
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">My Dashboard</h2>
+          <p className="text-slate-500 mt-1">Welcome back! Here's your personal overview.</p>
+        </div>
+      )}
 
       {/* Profile Summary Card */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
@@ -160,6 +181,8 @@ export default function EmployeeProfile({ employee, onBack }: EmployeeProfilePro
             { label: 'Contact', icon: Smartphone, color: 'bg-teal-500', onClick: () => setActiveSubView('contact') },
             { label: 'Supervisor', icon: User, color: 'bg-sky-500', onClick: () => setActiveSubView('supervisor') },
             { label: 'Document & Passport', icon: FileText, color: 'bg-rose-500', onClick: () => setActiveSubView('documents') },
+            { label: 'Payroll', icon: CreditCard, color: 'bg-emerald-600', onClick: () => setActiveSubView('payroll') },
+            { label: 'Performance', icon: BarChart3, color: 'bg-indigo-600', onClick: () => setActiveSubView('performance') },
           ].map((action, i) => (
             <button 
               key={i} 

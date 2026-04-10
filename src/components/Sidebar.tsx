@@ -19,21 +19,22 @@ import { motion } from 'motion/react';
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  userRole: 'admin' | 'employee';
 }
 
-const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'employees', label: 'Employees', icon: Users },
-  { id: 'roles', label: 'Roles', icon: Shield },
-  { id: 'departments', label: 'Departments', icon: Building2 },
-  { id: 'attendance', label: 'Attendance', icon: ClipboardCheck },
-  { id: 'leave', label: 'Leave Tracking', icon: Calendar },
-  { id: 'events-schedule', label: 'Events & Schedule', icon: CalendarClock },
-  { id: 'payroll', label: 'Payroll', icon: CreditCard },
-  { id: 'performance', label: 'Performance', icon: BarChart3 },
-];
+export default function Sidebar({ activeTab, setActiveTab, userRole }: SidebarProps) {
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'employees', label: 'Employees', icon: Users, hidden: userRole === 'employee' },
+    { id: 'roles', label: 'Roles', icon: Shield, hidden: userRole === 'employee' },
+    { id: 'departments', label: 'Departments', icon: Building2, hidden: userRole === 'employee' },
+    { id: 'attendance', label: 'Attendance', icon: ClipboardCheck },
+    { id: 'leave', label: 'Leave Tracking', icon: Calendar },
+    { id: 'events-schedule', label: 'Events & Schedule', icon: CalendarClock },
+    { id: 'payroll', label: 'Payroll', icon: CreditCard, hidden: userRole === 'employee' },
+    { id: 'performance', label: 'Performance', icon: BarChart3, hidden: userRole === 'employee' },
+  ];
 
-export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
   return (
     <div className="w-64 bg-white border-r border-slate-200 h-screen flex flex-col sticky top-0">
       <div className="p-6 flex items-center gap-3">
@@ -44,7 +45,7 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
       </div>
 
       <nav className="flex-1 px-4 space-y-1">
-        {navItems.map((item) => {
+        {navItems.filter(item => !item.hidden).map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           

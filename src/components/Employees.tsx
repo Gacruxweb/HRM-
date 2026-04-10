@@ -25,9 +25,10 @@ import SearchFilterBar from './SearchFilterBar';
 
 interface EmployeesProps {
   onAddEmployee: () => void;
+  userRole?: 'admin' | 'employee';
 }
 
-export default function Employees({ onAddEmployee }: EmployeesProps) {
+export default function Employees({ onAddEmployee, userRole = 'admin' }: EmployeesProps) {
   const [employees, setEmployees] = useState(MOCK_EMPLOYEES);
   const [searchTerm, setSearchTerm] = useState('');
   const [view, setView] = useState<'grid' | 'table' | 'profile' | 'edit'>('grid');
@@ -113,13 +114,22 @@ export default function Employees({ onAddEmployee }: EmployeesProps) {
     }
   };
 
-  const getEmployeeActions = (emp: any): ActionItem[] => [
-    { label: 'View Profile', icon: Eye, onClick: () => handleAction('view', emp) },
-    { label: 'Edit Details', icon: Edit, onClick: () => handleAction('edit', emp) },
-    { label: 'Change Status', icon: User, onClick: () => handleAction('status', emp) },
-    { label: 'Terminate', icon: UserX, onClick: () => handleAction('terminate', emp), variant: 'danger' },
-    { label: 'Delete Record', icon: Trash2, onClick: () => handleAction('delete', emp), variant: 'danger' },
-  ];
+  const getEmployeeActions = (emp: any): ActionItem[] => {
+    const actions: ActionItem[] = [
+      { label: 'View Profile', icon: Eye, onClick: () => handleAction('view', emp) },
+    ];
+
+    if (userRole === 'admin') {
+      actions.push(
+        { label: 'Edit Details', icon: Edit, onClick: () => handleAction('edit', emp) },
+        { label: 'Change Status', icon: User, onClick: () => handleAction('status', emp) },
+        { label: 'Terminate', icon: UserX, onClick: () => handleAction('terminate', emp), variant: 'danger' },
+        { label: 'Delete Record', icon: Trash2, onClick: () => handleAction('delete', emp), variant: 'danger' }
+      );
+    }
+
+    return actions;
+  };
 
   if (view === 'profile' && selectedEmployee) {
     return <EmployeeProfile employee={selectedEmployee} onBack={() => setView('grid')} />;
@@ -142,16 +152,22 @@ export default function Employees({ onAddEmployee }: EmployeesProps) {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Employee Directory</h2>
-          <p className="text-slate-500 mt-1">Manage and view all team members in one place.</p>
+          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">
+            {userRole === 'admin' ? 'Employee Directory' : 'Employee Dashboard'}
+          </h2>
+          <p className="text-slate-500 mt-1">
+            {userRole === 'admin' ? 'Manage and view all team members in one place.' : 'View and connect with your team members.'}
+          </p>
         </div>
-        <button 
-          onClick={onAddEmployee}
-          className="w-full sm:w-auto px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-all shadow-sm flex items-center justify-center gap-2"
-        >
-          <Plus className="w-5 h-5" />
-          Add New Employee
-        </button>
+        {userRole === 'admin' && (
+          <button 
+            onClick={onAddEmployee}
+            className="w-full sm:w-auto px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-all shadow-sm flex items-center justify-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            Add New Employee
+          </button>
+        )}
       </div>
 
       <SearchFilterBar 

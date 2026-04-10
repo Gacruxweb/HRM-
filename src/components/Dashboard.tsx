@@ -87,6 +87,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         <p className="text-slate-500 mt-1">Welcome back! Here's what's happening today.</p>
       </div>
 
+      {/* Row 1: Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           title="Total Employees" 
@@ -126,6 +127,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         />
       </div>
 
+      {/* Row 2: Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
           <h3 className="text-lg font-bold text-slate-900 mb-6">Attendance Trends</h3>
@@ -184,145 +186,134 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 mb-6">Quick Actions</h3>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: 'Add Employee', icon: UserPlus, color: 'bg-blue-500', onClick: () => onNavigate('add-employee') },
-                { label: 'Mark Attendance', icon: ClipboardCheck, color: 'bg-emerald-500', onClick: () => onNavigate('attendance') },
-                { label: 'Approve Leaves', icon: FileCheck, color: 'bg-purple-500', onClick: () => onNavigate('leave') },
-                { label: 'Events & Schedule', icon: Calendar, color: 'bg-pink-500', onClick: () => onNavigate('events-schedule') },
-                { label: 'View Calendar', icon: Calendar, color: 'bg-indigo-500', onClick: () => onNavigate('leave') },
-              ].map((action) => (
-                <button 
-                  key={action.label}
-                  onClick={action.onClick}
-                  className="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-all group"
-                >
-                  <div className={cn("p-3 rounded-xl mb-3 group-hover:scale-110 transition-transform", action.color)}>
-                    <action.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="text-xs font-bold text-slate-700 text-center">{action.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+      {/* Row 3: Quick Actions (Full Width) */}
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+        <h3 className="text-lg font-bold text-slate-900 mb-6">Quick Actions</h3>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {[
+            { label: 'Add Employee', icon: UserPlus, color: 'bg-blue-500', onClick: () => onNavigate('add-employee') },
+            { label: 'Mark Attendance', icon: ClipboardCheck, color: 'bg-emerald-500', onClick: () => onNavigate('attendance') },
+            { label: 'Approve Leaves', icon: FileCheck, color: 'bg-purple-500', onClick: () => onNavigate('leave') },
+            { label: 'Events & Schedule', icon: Calendar, color: 'bg-pink-500', onClick: () => onNavigate('events-schedule') },
+            { label: 'View Calendar', icon: Calendar, color: 'bg-indigo-500', onClick: () => onNavigate('leave') },
+          ].map((action) => (
+            <button 
+              key={action.label}
+              onClick={action.onClick}
+              className="flex flex-col items-center justify-center p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-all group"
+            >
+              <div className={cn("p-3 rounded-xl mb-3 group-hover:scale-110 transition-transform", action.color)}>
+                <action.icon className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xs font-bold text-slate-700 text-center">{action.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-900 mb-6">Recent Activity</h3>
-            <div className="space-y-6">
-              {[
-                { user: 'Sarah Johnson', action: 'submitted a leave request for Dec 28-30', time: '2 hours ago', icon: FileCheck, color: 'text-orange-500' },
-                { user: 'Alex Thompson', action: 'was added to Engineering department', time: '5 hours ago', icon: UserPlus, color: 'text-emerald-500' },
-                { user: 'Michael Chen', action: 'marked attendance at 9:15 AM', time: '7 hours ago', icon: ClipboardCheck, color: 'text-blue-500' },
-                { user: 'Emily Rodriguez', action: 'leave request was approved', time: '1 day ago', icon: FileCheck, color: 'text-orange-500' },
-                { user: 'James Wilson', action: 'updated profile information', time: '2 days ago', icon: Clock, color: 'text-slate-400' },
-              ].map((activity, i) => (
-                <div key={i} className="flex gap-4">
-                  <div className={cn("mt-1", activity.color)}>
-                    <activity.icon className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600">
-                      <span className="font-bold text-slate-900">{activity.user}</span> {activity.action}
-                    </p>
-                    <p className="text-xs text-slate-400 mt-1">{activity.time}</p>
-                  </div>
+      {/* Row 3: Recent Activity and Leave Requests (Side by Side) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <h3 className="text-lg font-bold text-slate-900 mb-6">Recent Activity</h3>
+          <div className="space-y-6">
+            {[
+              { user: 'Sarah Johnson', action: 'submitted a leave request for Dec 28-30', time: '2 hours ago', icon: FileCheck, color: 'text-orange-500' },
+              { user: 'Alex Thompson', action: 'was added to Engineering department', time: '5 hours ago', icon: UserPlus, color: 'text-emerald-500' },
+              { user: 'Michael Chen', action: 'marked attendance at 9:15 AM', time: '7 hours ago', icon: ClipboardCheck, color: 'text-blue-500' },
+              { user: 'Emily Rodriguez', action: 'leave request was approved', time: '1 day ago', icon: FileCheck, color: 'text-orange-500' },
+              { user: 'James Wilson', action: 'updated profile information', time: '2 days ago', icon: Clock, color: 'text-slate-400' },
+            ].map((activity, i) => (
+              <div key={i} className="flex gap-4">
+                <div className={cn("mt-1", activity.color)}>
+                  <activity.icon className="w-4 h-4" />
                 </div>
-              ))}
-            </div>
+                <div>
+                  <p className="text-sm text-slate-600">
+                    <span className="font-bold text-slate-900">{activity.user}</span> {activity.action}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">{activity.time}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        <div className="lg:col-span-2 space-y-8">
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-bold text-slate-900">Leave Requests</h3>
-              <button onClick={() => onNavigate('leave')} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors">
-                View all
-              </button>
-            </div>
-            <div className="space-y-4">
-              {MOCK_LEAVE_REQUESTS.map((request) => (
-                <div key={request.id} className="p-4 rounded-xl border border-slate-100 space-y-4">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="font-bold text-slate-900">{request.employeeName}</h4>
-                      <p className="text-sm text-slate-500">{request.type} Leave</p>
-                      <p className="text-xs text-slate-400 mt-1">{request.startDate} - {request.endDate}</p>
-                      <p className="text-xs text-slate-500 mt-2 italic">Reason: {request.reason}</p>
-                    </div>
-                    <span className={cn(
-                      "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider",
-                      request.status === 'Approved' ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
-                    )}>
-                      {request.status}
-                    </span>
-                  </div>
-                  {request.status === 'Pending' && (
-                    <div className="flex gap-3">
-                      <button className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors">
-                        Approve
-                      </button>
-                      <button className="flex-1 py-2 bg-white border border-slate-200 text-slate-700 rounded-lg text-sm font-bold hover:bg-slate-50 transition-colors">
-                        Reject
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-lg font-bold text-slate-900">Leave Requests</h3>
+            <button onClick={() => onNavigate('leave')} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition-colors">
+              View all
+            </button>
           </div>
-
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-slate-100">
-              <h3 className="text-lg font-bold text-slate-900">Recent Employees</h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold">Name</th>
-                    <th className="px-6 py-4 font-semibold">Email</th>
-                    <th className="px-6 py-4 font-semibold">Department</th>
-                    <th className="px-6 py-4 font-semibold">Position</th>
-                    <th className="px-6 py-4 font-semibold text-center">Status</th>
-                    <th className="px-6 py-4 font-semibold">Join Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {MOCK_EMPLOYEES.slice(0, 5).map((emp) => (
-                    <tr key={emp.id} className="hover:bg-slate-50 transition-colors cursor-pointer">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">
-                            {emp.name.split(' ').map(n => n[0]).join('')}
-                          </div>
-                          <span className="font-bold text-slate-900 text-sm">{emp.name}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-sm">{emp.email}</td>
-                      <td className="px-6 py-4 text-slate-600 font-medium text-sm">{emp.department}</td>
-                      <td className="px-6 py-4 text-slate-600 text-sm">{emp.role}</td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={cn(
-                          "px-2.5 py-1 rounded-lg text-[10px] font-bold",
-                          emp.status === 'Active' ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
-                        )}>
-                          {emp.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-slate-500 text-sm">{emp.joinDate}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div className="space-y-4">
+            {MOCK_LEAVE_REQUESTS.slice(0, 3).map((request) => (
+              <div key={request.id} className="p-4 rounded-xl border border-slate-100 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-bold text-slate-900">{request.employeeName}</h4>
+                    <p className="text-sm text-slate-500">{request.type} Leave</p>
+                    <p className="text-xs text-slate-400 mt-1">{request.startDate} - {request.endDate}</p>
+                  </div>
+                  <span className={cn(
+                    "px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider",
+                    request.status === 'Approved' ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                  )}>
+                    {request.status}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+
+      {/* Row 4: Recent Employees (Full Width) */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-6 border-b border-slate-100">
+          <h3 className="text-lg font-bold text-slate-900">Recent Employees</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+              <tr>
+                <th className="px-6 py-4 font-semibold">Name</th>
+                <th className="px-6 py-4 font-semibold">Email</th>
+                <th className="px-6 py-4 font-semibold">Department</th>
+                <th className="px-6 py-4 font-semibold">Position</th>
+                <th className="px-6 py-4 font-semibold text-center">Status</th>
+                <th className="px-6 py-4 font-semibold">Join Date</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {MOCK_EMPLOYEES.slice(0, 5).map((emp) => (
+                <tr key={emp.id} className="hover:bg-slate-50 transition-colors cursor-pointer">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[10px] font-bold">
+                        {emp.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <span className="font-bold text-slate-900 text-sm">{emp.name}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-slate-500 text-sm">{emp.email}</td>
+                  <td className="px-6 py-4 text-slate-600 font-medium text-sm">{emp.department}</td>
+                  <td className="px-6 py-4 text-slate-600 text-sm">{emp.role}</td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={cn(
+                      "px-2.5 py-1 rounded-lg text-[10px] font-bold",
+                      emp.status === 'Active' ? "bg-emerald-100 text-emerald-700" : "bg-orange-100 text-orange-700"
+                    )}>
+                      {emp.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-slate-500 text-sm">{emp.joinDate}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
   );
 }

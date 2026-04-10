@@ -17,6 +17,8 @@ import Roles from './components/Roles';
 import Settings from './components/Settings';
 import EmployeeProfile from './components/EmployeeProfile';
 import EventsScheduleView from './components/EventsScheduleView';
+import NotificationSidebar from './components/NotificationSidebar';
+import LoginPage from './components/LoginPage';
 import { 
   Bell, 
   Search, 
@@ -31,14 +33,52 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState<'admin' | 'employee'>('admin');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+  const handleLogin = (role: 'admin' | 'employee') => {
+    setUserRole(role);
+    setIsLoggedIn(true);
+    setActiveTab('dashboard');
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setIsProfileOpen(false);
+  };
+
+  if (!isLoggedIn) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
 
   const renderContent = () => {
+    const employeeData = {
+      id: userRole === 'admin' ? 'AD001' : 'EM001',
+      name: userRole === 'admin' ? 'Admin User' : 'Employee User',
+      role: userRole === 'admin' ? 'HR Director' : 'Product Designer',
+      department: userRole === 'admin' ? 'Human Resources' : 'Design',
+      email: userRole === 'admin' ? 'admin@siegecode.com' : 'employee@siegecode.com',
+      avatar: `https://picsum.photos/seed/${userRole}/200/200`,
+      joinDate: 'Jan 15, 2022',
+      status: 'Active'
+    };
+
     switch (activeTab) {
-      case 'dashboard': return <Dashboard onNavigate={setActiveTab} />;
-      case 'employees': return <Employees onAddEmployee={() => setActiveTab('add-employee')} />;
+      case 'dashboard': 
+        if (userRole === 'employee') {
+          return <EmployeeProfile employee={employeeData} onBack={() => setActiveTab('dashboard')} isDashboard={true} />;
+        }
+        return <Dashboard onNavigate={setActiveTab} />;
+      case 'employees': return (
+        <Employees 
+          onAddEmployee={() => setActiveTab('add-employee')} 
+          userRole={userRole}
+        />
+      );
       case 'roles': return <Roles />;
       case 'add-employee': return (
         <AddEmployee 
@@ -58,17 +98,9 @@ export default function App() {
       case 'events-schedule': return <EventsScheduleView onBack={() => setActiveTab('dashboard')} />;
       case 'profile': return (
         <EmployeeProfile 
-          employee={{
-            id: 'AD001',
-            name: 'Admin User',
-            role: 'HR Director',
-            department: 'Human Resources',
-            email: 'admin@siegecode.com',
-            avatar: 'https://picsum.photos/seed/admin/200/200',
-            joinDate: 'Jan 15, 2022',
-            status: 'Active'
-          }} 
+          employee={employeeData} 
           onBack={() => setActiveTab('dashboard')} 
+          isDashboard={userRole === 'employee'}
         />
       );
       default: return <Dashboard onNavigate={setActiveTab} />;
@@ -79,7 +111,7 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 flex font-sans text-slate-900">
       {/* Sidebar */}
       <div className={`${isSidebarOpen ? 'block' : 'hidden'} lg:block`}>
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} userRole={userRole} />
       </div>
 
       {/* Main Content */}
@@ -104,7 +136,10 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <button className="relative p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors">
+            <button 
+              onClick={() => setIsNotificationsOpen(true)}
+              className="relative p-2.5 text-slate-500 hover:bg-slate-50 rounded-xl transition-colors"
+            >
               <Bell className="w-6 h-6" />
               <span className="absolute top-2.5 right-2.5 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full"></span>
             </button>
@@ -117,11 +152,15 @@ export default function App() {
                 className="flex items-center gap-3 p-1.5 pr-3 hover:bg-slate-50 rounded-xl transition-colors"
               >
                 <div className="w-9 h-9 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-700 font-bold">
-                  AD
+                  {userRole === 'admin' ? 'AD' : 'EM'}
                 </div>
                 <div className="hidden sm:block text-left">
-                  <p className="text-sm font-bold text-slate-900">Admin User</p>
-                  <p className="text-xs text-slate-500">HR Director</p>
+                  <p className="text-sm font-bold text-slate-900">
+                    {userRole === 'admin' ? 'Admin User' : 'Employee User'}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {userRole === 'admin' ? 'HR Director' : 'Product Designer'}
+                  </p>
                 </div>
                 <ChevronDown className={cn("w-4 h-4 text-slate-400 transition-transform", isProfileOpen && "rotate-180")} />
               </button>
@@ -165,10 +204,7 @@ export default function App() {
                       <div className="border-t border-slate-100 p-2">
                         <button 
                           className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
-                          onClick={() => {
-                            console.log('Logging out...');
-                            setIsProfileOpen(false);
-                          }}
+                          onClick={handleLogout}
                         >
                           <LogOut className="w-4 h-4" />
                           Logout
@@ -200,6 +236,11 @@ export default function App() {
         <footer className="p-8 text-center text-slate-400 text-sm border-t border-slate-200 bg-white">
           <p>© 2026 Siegecode HRM. All rights reserved. Built for modern HR teams.</p>
         </footer>
+
+        <NotificationSidebar 
+          isOpen={isNotificationsOpen} 
+          onClose={() => setIsNotificationsOpen(false)} 
+        />
       </div>
     </div>
   );
