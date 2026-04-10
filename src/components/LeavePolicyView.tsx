@@ -14,6 +14,7 @@ import {
 import { cn } from '../lib/utils';
 import ConfirmationModal from './ConfirmationModal';
 import { LeavePolicyRecord } from '../types/leave';
+import SearchFilterBar from './SearchFilterBar';
 
 interface LeavePolicyViewProps {
   onBack: () => void;
@@ -45,6 +46,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
     },
   ]);
 
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(policies[0]?.id || null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
@@ -124,6 +126,10 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
       setDeleteModal({ isOpen: false, record: null });
     }
   };
+
+  const filteredPolicies = policies.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -240,15 +246,22 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
       </div>
 
       {/* Bottom Section: Policy List & Details */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-          <h3 className="text-lg font-bold text-slate-900">Policy List</h3>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[500px]">
+      <div className="space-y-6">
+        <SearchFilterBar 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search policies..."
+          className="border-none shadow-none px-4"
+        />
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+            <h3 className="text-lg font-bold text-slate-900">Policy List</h3>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[500px]">
           {/* Left Side: Policy List (Tabs) */}
           <div className="lg:col-span-3 border-r border-slate-100 bg-slate-50/30 flex flex-col">
             <div className="flex-1 overflow-y-auto">
-              {policies.map((policy) => (
+              {filteredPolicies.map((policy) => (
                 <div 
                   key={policy.id}
                   onClick={() => handleSelect(policy)}
@@ -353,8 +366,9 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
           </div>
         </div>
       </div>
+    </div>
 
-      <ConfirmationModal 
+    <ConfirmationModal 
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, record: null })}
         onConfirm={confirmDelete}

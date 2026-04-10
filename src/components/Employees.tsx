@@ -21,6 +21,7 @@ import ActionMenu, { ActionItem } from './ActionMenu';
 import EmployeeProfile from './EmployeeProfile';
 import AddEmployee from './AddEmployee';
 import ConfirmationModal, { ModalVariant } from './ConfirmationModal';
+import SearchFilterBar from './SearchFilterBar';
 
 interface EmployeesProps {
   onAddEmployee: () => void;
@@ -153,30 +154,17 @@ export default function Employees({ onAddEmployee }: EmployeesProps) {
         </button>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          <input 
-            type="text" 
-            placeholder="Search by name, role, or department..."
-            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-2 relative">
-          <button 
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={cn(
-              "px-4 py-3 bg-white border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-2",
-              (statusFilter !== 'All' || deptFilter !== 'All') && "border-indigo-500 text-indigo-600 bg-indigo-50"
-            )}
-          >
-            <Filter className="w-5 h-5" />
-            <span className="font-medium">Filter</span>
-          </button>
-
-          {isFilterOpen && (
+      <SearchFilterBar 
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search by name, role, or department..."
+        displayMode={view === 'grid' || view === 'table' ? view : 'grid'}
+        onDisplayModeChange={(mode) => setView(mode)}
+        onFilterClick={() => setIsFilterOpen(!isFilterOpen)}
+        isFilterActive={statusFilter !== 'All' || deptFilter !== 'All'}
+        className="border-none shadow-none px-4"
+        rightElement={
+          isFilterOpen && (
             <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="space-y-4">
                 <div>
@@ -211,30 +199,9 @@ export default function Employees({ onAddEmployee }: EmployeesProps) {
                 </button>
               </div>
             </div>
-          )}
-
-          <div className="bg-white border border-slate-200 rounded-xl p-1 flex">
-            <button 
-              onClick={() => setView('grid')}
-              className={cn(
-                "p-2 rounded-lg transition-all",
-                view === 'grid' ? "bg-indigo-50 text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-              )}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-            </button>
-            <button 
-              onClick={() => setView('table')}
-              className={cn(
-                "p-2 rounded-lg transition-all",
-                view === 'table' ? "bg-indigo-50 text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-              )}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            </button>
-          </div>
-        </div>
-      </div>
+          )
+        }
+      />
 
       {view === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

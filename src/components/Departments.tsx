@@ -18,12 +18,14 @@ import DepartmentDetails from './DepartmentDetails';
 import ManageBudgetModal from './ManageBudgetModal';
 import { Department } from '../types';
 import ActionMenu, { ActionItem } from './ActionMenu';
+import SearchFilterBar from './SearchFilterBar';
 
 export default function Departments() {
   const [view, setView] = useState<'list' | 'add' | 'edit' | 'details'>('list');
   const [displayMode, setDisplayMode] = useState<'grid' | 'table'>('grid');
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
   const [departments, setDepartments] = useState<Department[]>(MOCK_DEPARTMENTS);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
 
   const getDeptActions = (dept: Department): ActionItem[] => [
@@ -70,6 +72,11 @@ export default function Departments() {
     setView('details');
   };
 
+  const filteredDepartments = departments.filter(d => 
+    d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    d.manager.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (view === 'add') {
     return <DepartmentForm onBack={() => setView('list')} onSave={handleAddDepartment} />;
   }
@@ -89,40 +96,27 @@ export default function Departments() {
           <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Department Management</h2>
           <p className="text-slate-500 mt-1">Organize your company structure and budgets.</p>
         </div>
-        <div className="flex gap-3">
-          <div className="bg-white border border-slate-200 rounded-xl p-1 flex">
-            <button 
-              onClick={() => setDisplayMode('grid')}
-              className={cn(
-                "p-2 rounded-lg transition-all",
-                displayMode === 'grid' ? "bg-indigo-50 text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-              )}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-            </button>
-            <button 
-              onClick={() => setDisplayMode('table')}
-              className={cn(
-                "p-2 rounded-lg transition-all",
-                displayMode === 'table' ? "bg-indigo-50 text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-              )}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            </button>
-          </div>
-          <button 
-            onClick={() => setView('add')}
-            className="w-full sm:w-auto px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-all shadow-sm flex items-center justify-center gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            Add Department
-          </button>
-        </div>
+        <button 
+          onClick={() => setView('add')}
+          className="w-full sm:w-auto px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-all shadow-sm flex items-center justify-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          Add Department
+        </button>
       </div>
+
+      <SearchFilterBar 
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search departments or managers..."
+        displayMode={displayMode}
+        onDisplayModeChange={setDisplayMode}
+        className="border-none shadow-none px-4"
+      />
 
       {displayMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {departments.map((dept) => (
+          {filteredDepartments.map((dept) => (
             <div 
               key={dept.id} 
               onClick={() => handleViewDetails(dept)}
@@ -193,7 +187,7 @@ export default function Departments() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {departments.map((dept) => (
+              {filteredDepartments.map((dept) => (
                 <tr key={dept.id} className="hover:bg-slate-50 transition-colors group cursor-pointer" onClick={() => handleViewDetails(dept)}>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">

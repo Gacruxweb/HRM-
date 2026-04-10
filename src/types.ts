@@ -93,3 +93,14 @@ export interface Role {
   permissions: string[];
   employeeCount: number;
 }
+
+export interface EventRecord {
+  id: string;
+  title: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  type: 'Meeting' | 'Workshop' | 'Holiday' | 'Other';
+  description?: string;
+}

@@ -193,7 +193,8 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
                 { label: 'Add Employee', icon: UserPlus, color: 'bg-blue-500', onClick: () => onNavigate('add-employee') },
                 { label: 'Mark Attendance', icon: ClipboardCheck, color: 'bg-emerald-500', onClick: () => onNavigate('attendance') },
                 { label: 'Approve Leaves', icon: FileCheck, color: 'bg-purple-500', onClick: () => onNavigate('leave') },
-                { label: 'View Calendar', icon: Calendar, color: 'bg-pink-500', onClick: () => onNavigate('leave') },
+                { label: 'Events & Schedule', icon: Calendar, color: 'bg-pink-500', onClick: () => onNavigate('events-schedule') },
+                { label: 'View Calendar', icon: Calendar, color: 'bg-indigo-500', onClick: () => onNavigate('leave') },
               ].map((action) => (
                 <button 
                   key={action.label}

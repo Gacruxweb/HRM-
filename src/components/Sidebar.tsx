@@ -28,6 +28,7 @@ const navItems = [
   { id: 'departments', label: 'Departments', icon: Building2 },
   { id: 'attendance', label: 'Attendance', icon: ClipboardCheck },
   { id: 'leave', label: 'Leave Tracking', icon: Calendar },
+  { id: 'events-schedule', label: 'Events & Schedule', icon: CalendarClock },
   { id: 'payroll', label: 'Payroll', icon: CreditCard },
   { id: 'performance', label: 'Performance', icon: BarChart3 },
 ];

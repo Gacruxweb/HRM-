@@ -15,6 +15,7 @@ import {
 import { cn } from '../lib/utils';
 import ConfirmationModal from './ConfirmationModal';
 import { LeaveTypeRecord } from '../types/leave';
+import SearchFilterBar from './SearchFilterBar';
 
 interface LeaveTypeViewProps {
   onBack: () => void;
@@ -43,6 +44,14 @@ export default function LeaveTypeView({ onBack, records, setRecords }: LeaveType
     isOpen: false,
     record: null
   });
+
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredRecords = records.filter(r => 
+    r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.countType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.paymentType.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,11 +210,18 @@ export default function LeaveTypeView({ onBack, records, setRecords }: LeaveType
       </div>
 
       {/* Records Table Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-          <h3 className="text-lg font-bold text-slate-900">Leave Type Records</h3>
-        </div>
-        <div className="overflow-x-auto">
+      <div className="space-y-6">
+        <SearchFilterBar 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search leave types..."
+          className="border-none shadow-none px-4"
+        />
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
+          <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+            <h3 className="text-lg font-bold text-slate-900">Leave Type Records</h3>
+          </div>
+          <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-wider">
               <tr>
@@ -217,7 +233,7 @@ export default function LeaveTypeView({ onBack, records, setRecords }: LeaveType
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {records.map((record) => (
+              {filteredRecords.map((record) => (
                 <tr key={record.id} className="hover:bg-slate-50 transition-colors group">
                   <td className="px-6 py-4 text-sm font-bold text-slate-900">{record.name}</td>
                   <td className="px-6 py-4 text-sm text-slate-600">
@@ -292,8 +308,9 @@ export default function LeaveTypeView({ onBack, records, setRecords }: LeaveType
           </table>
         </div>
       </div>
+    </div>
 
-      <ConfirmationModal 
+    <ConfirmationModal 
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, record: null })}
         onConfirm={confirmDelete}

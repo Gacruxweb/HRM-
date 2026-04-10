@@ -27,6 +27,7 @@ import { MOCK_REVIEWS, MOCK_BRANCH_PERFORMANCE } from '../mockData';
 import { cn } from '../lib/utils';
 import ActionMenu, { ActionItem } from './ActionMenu';
 import ConfirmationModal, { ModalVariant } from './ConfirmationModal';
+import SearchFilterBar from './SearchFilterBar';
 
 interface ManagementAssessment {
   id: string;
@@ -127,6 +128,11 @@ export default function Performance() {
     return matchesSearch && matchesRating;
   });
 
+  const filteredAssessments = managementAssessments.filter(a => 
+    a.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    a.type.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const tabs = [
     { id: 'employees', label: 'Employee Performance', icon: User },
     { id: 'branches', label: 'Branch Performance', icon: Building2 },
@@ -192,42 +198,48 @@ export default function Performance() {
           </div>
 
           {/* Employee Performance List */}
-          <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold text-slate-900">Marketing Agents Performance</h3>
-              <div className="flex gap-3">
-                <div className="bg-slate-50 border border-slate-200 rounded-lg p-1 flex">
-                  <button 
-                    onClick={() => setDisplayMode('grid')}
-                    className={cn(
-                      "p-1.5 rounded-md transition-all",
-                      displayMode === 'grid' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                    )}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-                  </button>
-                  <button 
-                    onClick={() => setDisplayMode('table')}
-                    className={cn(
-                      "p-1.5 rounded-md transition-all",
-                      displayMode === 'table' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                    )}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                  </button>
-                </div>
-                <div className="relative w-64">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-                  <input 
-                    type="text" 
-                    placeholder="Search agents..."
-                    className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-              </div>
-            </div>
+          <div className="space-y-6">
+            <h3 className="text-xl font-bold text-slate-900">Marketing Agents Performance</h3>
+            <SearchFilterBar 
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              searchPlaceholder="Search agents..."
+              displayMode={displayMode}
+              onDisplayModeChange={setDisplayMode}
+              onFilterClick={() => setIsFilterOpen(!isFilterOpen)}
+              isFilterActive={ratingFilter !== 'All'}
+              className="border-none shadow-none px-4"
+              rightElement={
+                isFilterOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Min Rating</label>
+                        <select 
+                          className="w-full p-2 bg-slate-50 border border-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                          value={ratingFilter}
+                          onChange={(e) => setRatingFilter(e.target.value)}
+                        >
+                          <option value="All">All Ratings</option>
+                          <option value="5">5 Stars</option>
+                          <option value="4">4+ Stars</option>
+                          <option value="3">3+ Stars</option>
+                        </select>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setRatingFilter('All');
+                          setIsFilterOpen(false);
+                        }}
+                        className="w-full py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                      >
+                        Reset Filters
+                      </button>
+                    </div>
+                  </div>
+                )
+              }
+            />
 
             {displayMode === 'grid' ? (
               <div className="grid grid-cols-1 gap-4">
@@ -469,8 +481,14 @@ export default function Performance() {
               </div>
 
               <div className="lg:col-span-2 space-y-8">
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h4 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Management Assessments</h4>
+                  <SearchFilterBar 
+                    searchTerm={searchTerm}
+                    onSearchChange={setSearchTerm}
+                    searchPlaceholder="Search assessments..."
+                    className="border-none shadow-none px-4"
+                  />
                   <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
                     <table className="w-full text-left">
                       <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
@@ -483,7 +501,7 @@ export default function Performance() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {managementAssessments.map((assessment) => (
+                        {filteredAssessments.map((assessment) => (
                           <tr key={assessment.id} className="hover:bg-slate-50 transition-colors">
                             <td className="px-6 py-4">
                               <p className="font-bold text-slate-900">{assessment.title}</p>

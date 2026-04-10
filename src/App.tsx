@@ -16,6 +16,7 @@ import AddEmployee from './components/AddEmployee';
 import Roles from './components/Roles';
 import Settings from './components/Settings';
 import EmployeeProfile from './components/EmployeeProfile';
+import EventsScheduleView from './components/EventsScheduleView';
 import { 
   Bell, 
   Search, 
@@ -54,6 +55,7 @@ export default function App() {
       case 'payroll': return <Payroll />;
       case 'performance': return <Performance />;
       case 'settings': return <Settings />;
+      case 'events-schedule': return <EventsScheduleView onBack={() => setActiveTab('dashboard')} />;
       case 'profile': return (
         <EmployeeProfile 
           employee={{

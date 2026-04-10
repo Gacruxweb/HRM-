@@ -16,6 +16,7 @@ import {
 import { cn } from '../lib/utils';
 import ConfirmationModal from './ConfirmationModal';
 import { LeaveGroupRecord } from '../types/leave';
+import SearchFilterBar from './SearchFilterBar';
 
 interface LeaveGroupViewProps {
   onBack: () => void;
@@ -28,6 +29,7 @@ export default function LeaveGroupView({ onBack, availableLeaveTypes }: LeaveGro
     { id: '2', name: 'Management Group', leaveTypes: ['Annual Leave', 'Sick Leave', 'Casual Leave', 'Paid Leave'], totalLeave: 30, employeeCount: 12 },
   ]);
 
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState<Partial<LeaveGroupRecord>>({
     name: '',
     leaveTypes: []
@@ -98,6 +100,10 @@ export default function LeaveGroupView({ onBack, availableLeaveTypes }: LeaveGro
       setDeleteModal({ isOpen: false, record: null });
     }
   };
+
+  const filteredRecords = records.filter(r => 
+    r.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -246,11 +252,18 @@ export default function LeaveGroupView({ onBack, availableLeaveTypes }: LeaveGro
       </div>
 
       {/* Records Table Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-          <h3 className="text-lg font-bold text-slate-900">Leave Group Records</h3>
-        </div>
-        <div className="overflow-x-auto">
+      <div className="space-y-6">
+        <SearchFilterBar 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search leave groups..."
+          className="border-none shadow-none px-4"
+        />
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
+          <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+            <h3 className="text-lg font-bold text-slate-900">Leave Group Records</h3>
+          </div>
+          <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-wider">
               <tr>
@@ -262,7 +275,7 @@ export default function LeaveGroupView({ onBack, availableLeaveTypes }: LeaveGro
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {records.map((record) => (
+              {filteredRecords.map((record) => (
                 <tr key={record.id} className="hover:bg-slate-50 transition-colors group">
                   <td className="px-6 py-4 text-sm font-bold text-slate-900">{record.name}</td>
                   <td className="px-6 py-4">
@@ -325,8 +338,9 @@ export default function LeaveGroupView({ onBack, availableLeaveTypes }: LeaveGro
           </table>
         </div>
       </div>
+    </div>
 
-      <ConfirmationModal 
+    <ConfirmationModal 
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, record: null })}
         onConfirm={confirmDelete}

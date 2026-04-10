@@ -14,6 +14,7 @@ import { cn } from '../lib/utils';
 import ConfirmationModal from './ConfirmationModal';
 import { HolidayRecord } from '../types/leave';
 import { MOCK_DEPARTMENTS } from '../mockData';
+import SearchFilterBar from './SearchFilterBar';
 
 interface HolidaySetupViewProps {
   onBack: () => void;
@@ -25,6 +26,7 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
     { id: '2', description: 'Eid-ul-Fitr', department: 'All Departments', fromDate: '2026-03-31', toDate: '2026-04-02' },
   ]);
 
+  const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState<Partial<HolidayRecord>>({
     description: '',
     department: 'All Departments',
@@ -84,6 +86,11 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
     }
   };
 
+  const filteredRecords = records.filter(r => 
+    r.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.department.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Breadcrumbs */}
@@ -102,7 +109,7 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
 
       {/* Add/Edit Form Section */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-300 relative">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl">
+        <div className="p-6 bg-slate-50/50 rounded-none">
           <h3 className="text-lg font-bold text-slate-900">{isEditing ? 'Edit Holiday' : 'New Holiday Setup'}</h3>
         </div>
         <div className="p-8">
@@ -223,11 +230,18 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
       </div>
 
       {/* Records Table Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
-        <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-          <h3 className="text-lg font-bold text-slate-900">Holiday Records</h3>
-        </div>
-        <div className="overflow-x-auto">
+      <div className="space-y-6">
+        <SearchFilterBar 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search holidays..."
+          className="border-none shadow-none px-4"
+        />
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 relative z-10">
+          <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+            <h3 className="text-lg font-bold text-slate-900">Holiday Records</h3>
+          </div>
+          <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-wider">
               <tr>
@@ -239,7 +253,7 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {records.map((record) => (
+              {filteredRecords.map((record) => (
                 <tr key={record.id} className="hover:bg-slate-50 transition-colors group">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
@@ -308,8 +322,9 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
           </table>
         </div>
       </div>
+    </div>
 
-      <ConfirmationModal 
+    <ConfirmationModal 
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, record: null })}
         onConfirm={confirmDelete}

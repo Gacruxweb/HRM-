@@ -19,9 +19,11 @@ import { cn } from '../lib/utils';
 import NewLeaveRequestModal from './NewLeaveRequestModal';
 import ActionMenu, { ActionItem } from './ActionMenu';
 import LeaveSetting from './LeaveSetting';
+import SearchFilterBar from './SearchFilterBar';
 
 export default function Leave() {
   const [requests, setRequests] = useState(MOCK_LEAVE_REQUESTS);
+  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [typeFilter, setTypeFilter] = useState<string>('All');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -42,9 +44,12 @@ export default function Leave() {
   ];
 
   const filteredRequests = requests.filter(request => {
+    const matchesSearch = request.employeeName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         request.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         request.reason.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'All' || request.status === statusFilter;
     const matchesType = typeFilter === 'All' || request.type === typeFilter;
-    return matchesStatus && matchesType;
+    return matchesSearch && matchesStatus && matchesType;
   });
 
   const handleSaveRequest = (newRequest: any) => {
@@ -96,41 +101,18 @@ export default function Leave() {
         ))}
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-          <h3 className="text-lg font-bold text-slate-900">Recent Requests</h3>
-          <div className="flex gap-2 relative">
-            <div className="bg-slate-50 border border-slate-200 rounded-lg p-1 flex">
-              <button 
-                onClick={() => setDisplayMode('grid')}
-                className={cn(
-                  "p-1.5 rounded-md transition-all",
-                  displayMode === 'grid' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                )}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-              </button>
-              <button 
-                onClick={() => setDisplayMode('table')}
-                className={cn(
-                  "p-1.5 rounded-md transition-all",
-                  displayMode === 'table' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-                )}
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-              </button>
-            </div>
-            <button 
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className={cn(
-                "p-2 bg-slate-50 rounded-lg text-slate-500 hover:text-slate-700 transition-colors",
-                (statusFilter !== 'All' || typeFilter !== 'All') && "text-indigo-600 bg-indigo-50"
-              )}
-            >
-              <Filter className="w-5 h-5" />
-            </button>
-
-            {isFilterOpen && (
+      <div className="space-y-6">
+        <SearchFilterBar 
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search leave requests..."
+          displayMode={displayMode}
+          onDisplayModeChange={setDisplayMode}
+          onFilterClick={() => setIsFilterOpen(!isFilterOpen)}
+          isFilterActive={statusFilter !== 'All' || typeFilter !== 'All'}
+          className="border-none shadow-none px-4"
+          rightElement={
+            isFilterOpen && (
               <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="space-y-4">
                   <div>
@@ -173,95 +155,97 @@ export default function Leave() {
                   </button>
                 </div>
               </div>
-            )}
-          </div>
-        </div>
-        {displayMode === 'grid' ? (
-          <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRequests.map((request) => (
-              <div key={request.id} className="bg-slate-50 rounded-2xl border border-slate-100 p-5 hover:border-indigo-200 transition-all group">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <p className="font-bold text-slate-900">{request.employeeName}</p>
-                    <p className="text-xs text-slate-500">ID: {request.employeeId}</p>
-                  </div>
-                  <ActionMenu items={getLeaveActions(request)} />
-                </div>
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500">Type</span>
-                    <span className="px-2 py-0.5 bg-white text-slate-700 rounded text-[10px] font-bold uppercase">{request.type}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500">Duration</span>
-                    <span className="font-bold text-slate-900">5 Days</span>
-                  </div>
-                  <p className="text-xs text-slate-500 line-clamp-2 italic">"{request.reason}"</p>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className={cn(
-                    "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1",
-                    request.status === 'Approved' ? "bg-emerald-100 text-emerald-700" : 
-                    request.status === 'Pending' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
-                  )}>
-                    {request.status}
-                  </span>
-                  <span className="text-[10px] font-bold text-slate-400">{request.startDate}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                <tr>
-                  <th className="px-6 py-4 font-semibold">Employee</th>
-                  <th className="px-6 py-4 font-semibold">Leave Type</th>
-                  <th className="px-6 py-4 font-semibold">Duration</th>
-                  <th className="px-6 py-4 font-semibold">Reason</th>
-                  <th className="px-6 py-4 font-semibold">Status</th>
-                  <th className="px-6 py-4 font-semibold text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredRequests.map((request) => (
-                  <tr key={request.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="font-semibold text-slate-900">{request.employeeName}</p>
+            )
+          }
+        />
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          {displayMode === 'grid' ? (
+            <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredRequests.map((request) => (
+                <div key={request.id} className="bg-slate-50 rounded-2xl border border-slate-100 p-5 hover:border-indigo-200 transition-all group">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <p className="font-bold text-slate-900">{request.employeeName}</p>
                       <p className="text-xs text-slate-500">ID: {request.employeeId}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
-                        {request.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-slate-900 font-medium">{request.startDate} to {request.endDate}</p>
-                      <p className="text-xs text-slate-500">5 Days</p>
-                    </td>
-                    <td className="px-6 py-4 text-slate-600 text-sm max-w-xs truncate">{request.reason}</td>
-                    <td className="px-6 py-4">
-                      <span className={cn(
-                        "px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 w-fit",
-                        request.status === 'Approved' ? "bg-emerald-50 text-emerald-700" : 
-                        request.status === 'Pending' ? "bg-amber-50 text-amber-700" : "bg-rose-50 text-rose-700"
-                      )}>
-                        {request.status === 'Approved' && <CheckCircle2 className="w-3 h-3" />}
-                        {request.status === 'Pending' && <Clock className="w-3 h-3" />}
-                        {request.status === 'Rejected' && <XCircle className="w-3 h-3" />}
-                        {request.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <ActionMenu items={getLeaveActions(request)} className="inline-block" />
-                    </td>
+                    </div>
+                    <ActionMenu items={getLeaveActions(request)} />
+                  </div>
+                  <div className="space-y-3 mb-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-500">Type</span>
+                      <span className="px-2 py-0.5 bg-white text-slate-700 rounded text-[10px] font-bold uppercase">{request.type}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-500">Duration</span>
+                      <span className="font-bold text-slate-900">5 Days</span>
+                    </div>
+                    <p className="text-xs text-slate-500 line-clamp-2 italic">"{request.reason}"</p>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className={cn(
+                      "px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1",
+                      request.status === 'Approved' ? "bg-emerald-100 text-emerald-700" : 
+                      request.status === 'Pending' ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+                    )}>
+                      {request.status}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400">{request.startDate}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
+                  <tr>
+                    <th className="px-6 py-4 font-semibold">Employee</th>
+                    <th className="px-6 py-4 font-semibold">Leave Type</th>
+                    <th className="px-6 py-4 font-semibold">Duration</th>
+                    <th className="px-6 py-4 font-semibold">Reason</th>
+                    <th className="px-6 py-4 font-semibold">Status</th>
+                    <th className="px-6 py-4 font-semibold text-right">Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredRequests.map((request) => (
+                    <tr key={request.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-4">
+                        <p className="font-semibold text-slate-900">{request.employeeName}</p>
+                        <p className="text-xs text-slate-500">ID: {request.employeeId}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-1 bg-slate-100 text-slate-700 rounded-md text-xs font-medium">
+                          {request.type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <p className="text-sm text-slate-900 font-medium">{request.startDate} to {request.endDate}</p>
+                        <p className="text-xs text-slate-500">5 Days</p>
+                      </td>
+                      <td className="px-6 py-4 text-slate-600 text-sm max-w-xs truncate">{request.reason}</td>
+                      <td className="px-6 py-4">
+                        <span className={cn(
+                          "px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 w-fit",
+                          request.status === 'Approved' ? "bg-emerald-50 text-emerald-700" : 
+                          request.status === 'Pending' ? "bg-amber-50 text-amber-700" : "bg-rose-50 text-rose-700"
+                        )}>
+                          {request.status === 'Approved' && <CheckCircle2 className="w-3 h-3" />}
+                          {request.status === 'Pending' && <Clock className="w-3 h-3" />}
+                          {request.status === 'Rejected' && <XCircle className="w-3 h-3" />}
+                          {request.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <ActionMenu items={getLeaveActions(request)} className="inline-block" />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
       </div>
       
       <NewLeaveRequestModal 

@@ -18,6 +18,7 @@ import { Role } from '../types';
 import RoleForm from './RoleForm';
 import AssignRoleModal from './AssignRoleModal';
 import ConfirmationModal, { ModalVariant } from './ConfirmationModal';
+import SearchFilterBar from './SearchFilterBar';
 
 export default function Roles() {
   const [roles, setRoles] = useState<Role[]>(MOCK_ROLES);
@@ -155,50 +156,17 @@ export default function Roles() {
       </div>
 
       {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-        <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <input 
-            type="text" 
-            placeholder="Search roles or descriptions..."
-            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-2 w-full md:w-auto relative">
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-1 flex">
-            <button 
-              onClick={() => setDisplayMode('grid')}
-              className={cn(
-                "p-1.5 rounded-lg transition-all",
-                displayMode === 'grid' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-              )}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-            </button>
-            <button 
-              onClick={() => setDisplayMode('table')}
-              className={cn(
-                "p-1.5 rounded-lg transition-all",
-                displayMode === 'table' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-400 hover:text-slate-600"
-              )}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
-            </button>
-          </div>
-          <button 
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2.5 bg-slate-50 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all border border-transparent",
-              deptFilter !== 'All' && "text-indigo-600 bg-indigo-50 border-indigo-100"
-            )}
-          >
-            <Filter className="w-4 h-4" />
-            Filter
-          </button>
-
-          {isFilterOpen && (
+      <SearchFilterBar 
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search roles or descriptions..."
+        displayMode={displayMode}
+        onDisplayModeChange={setDisplayMode}
+        onFilterClick={() => setIsFilterOpen(!isFilterOpen)}
+        isFilterActive={deptFilter !== 'All'}
+        className="border-none shadow-none px-4"
+        rightElement={
+          isFilterOpen && (
             <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="space-y-4">
                 <div>
@@ -224,9 +192,9 @@ export default function Roles() {
                 </button>
               </div>
             </div>
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
 
       {/* Roles Display */}
       {displayMode === 'grid' ? (
