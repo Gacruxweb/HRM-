@@ -22,4 +22,17 @@ export interface HolidayRecord {
   department: string;
   fromDate: string;
   toDate: string;
+  oneDayLeave?: boolean;
+}
+
+export interface LeavePolicyRecord {
+  id: string;
+  name: string;
+  countType: 'Daily basis' | 'Hourly basis';
+  considerableValue: number;
+  adjustedValue: number;
+  considerDeduction: boolean;
+  considerCumulativeDeduction: boolean;
+  deductFromSalary: boolean;
+  description: string;
 }

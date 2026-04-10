@@ -118,7 +118,7 @@ export default function LeaveYearView({ onBack }: LeaveYearViewProps) {
       </div>
 
       {/* Add/Edit Form Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-300 relative z-30">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-300 relative">
         <div className="p-6 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl">
           <h3 className="text-lg font-bold text-slate-900">{isEditing ? 'Edit Leave Year' : 'Add New Leave Year'}</h3>
         </div>

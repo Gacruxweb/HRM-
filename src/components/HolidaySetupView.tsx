@@ -29,7 +29,8 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
     description: '',
     department: 'All Departments',
     fromDate: '',
-    toDate: ''
+    toDate: '',
+    oneDayLeave: false
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -63,7 +64,8 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
       description: '', 
       department: 'All Departments', 
       fromDate: '', 
-      toDate: '' 
+      toDate: '',
+      oneDayLeave: false
     });
     setIsEditing(false);
     setEditingId(null);
@@ -99,7 +101,7 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
       </div>
 
       {/* Add/Edit Form Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-300 relative z-30">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm animate-in fade-in duration-300 relative">
         <div className="p-6 border-b border-slate-100 bg-slate-50/50 rounded-t-2xl">
           <h3 className="text-lg font-bold text-slate-900">{isEditing ? 'Edit Holiday' : 'New Holiday Setup'}</h3>
         </div>
@@ -132,15 +134,51 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
                 </select>
               </div>
               
+              <div className="space-y-2 md:col-span-2">
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <div className="relative flex items-center">
+                    <input 
+                      type="checkbox" 
+                      className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-slate-300 transition-all checked:bg-indigo-600 checked:border-indigo-600"
+                      checked={formData.oneDayLeave}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        setFormData({ 
+                          ...formData, 
+                          oneDayLeave: isChecked,
+                          toDate: isChecked ? formData.fromDate : formData.toDate
+                        });
+                      }}
+                    />
+                    <svg className="absolute h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                  <span 
+                    className="text-sm text-slate-700 group-hover:text-slate-900 transition-colors"
+                    style={{ fontStyle: 'normal', fontWeight: 'normal', fontFamily: 'Arial' }}
+                  >
+                    One Day Holiday
+                  </span>
+                </label>
+              </div>
+
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">From <span className="text-rose-500">*</span></label>
+                <label className="text-sm font-medium text-slate-700">
+                  {formData.oneDayLeave ? 'Select Date' : 'From'} <span className="text-rose-500">*</span>
+                </label>
                 <div className="relative">
                   <input 
                     type="date" 
                     required
                     className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                     value={formData.fromDate}
-                    onChange={(e) => setFormData({ ...formData, fromDate: e.target.value })}
+                    onChange={(e) => {
+                      const newDate = e.target.value;
+                      setFormData({ 
+                        ...formData, 
+                        fromDate: newDate,
+                        toDate: formData.oneDayLeave ? newDate : formData.toDate
+                      });
+                    }}
                   />
                 </div>
               </div>
@@ -150,7 +188,11 @@ export default function HolidaySetupView({ onBack }: HolidaySetupViewProps) {
                   <input 
                     type="date" 
                     required
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                    disabled={formData.oneDayLeave}
+                    className={cn(
+                      "w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all",
+                      formData.oneDayLeave ? "bg-slate-100 text-slate-400 cursor-not-allowed" : "bg-slate-50 text-slate-900"
+                    )}
                     value={formData.toDate}
                     onChange={(e) => setFormData({ ...formData, toDate: e.target.value })}
                   />

@@ -18,6 +18,7 @@ import LeaveYearView from './LeaveYearView';
 import LeaveTypeView from './LeaveTypeView';
 import LeaveGroupView from './LeaveGroupView';
 import HolidaySetupView from './HolidaySetupView';
+import LeavePolicyView from './LeavePolicyView';
 import { LeaveTypeRecord } from '../types/leave';
 
 interface LeaveSettingProps {
@@ -57,6 +58,10 @@ export default function LeaveSetting({ onBack }: LeaveSettingProps) {
 
   if (activeSubView === 'holiday-setup') {
     return <HolidaySetupView onBack={() => setActiveSubView(null)} />;
+  }
+
+  if (activeSubView === 'leave-policy') {
+    return <LeavePolicyView onBack={() => setActiveSubView(null)} />;
   }
 
   return (
@@ -104,19 +109,18 @@ export default function LeaveSetting({ onBack }: LeaveSettingProps) {
           <Settings className="w-5 h-5 text-indigo-600" />
           <h3 className="text-lg font-bold text-slate-900">Leave Management Actions</h3>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {[
             { label: 'Leave Year', icon: Calendar, color: 'bg-blue-500', onClick: () => setActiveSubView('leave-year') },
             { label: 'Leave Type', icon: Layers, color: 'bg-emerald-500', onClick: () => setActiveSubView('leave-type') },
             { label: 'Leave Group', icon: Users, color: 'bg-purple-500', onClick: () => setActiveSubView('leave-group') },
-            { label: 'Leave Policy', icon: FileText, color: 'bg-rose-500' },
+            { label: 'Leave Policy', icon: FileText, color: 'bg-rose-500', onClick: () => setActiveSubView('leave-policy') },
             { label: 'Holiday Setup', icon: Palmtree, color: 'bg-amber-500', onClick: () => setActiveSubView('holiday-setup') },
-            { label: 'Leave Status', icon: Activity, color: 'bg-teal-500' },
           ].map((action, i) => (
             <button 
               key={i} 
               onClick={action.onClick}
-              className="flex flex-col items-center justify-center p-6 rounded-2xl border border-slate-100 hover:bg-slate-50 hover:border-indigo-100 transition-all group"
+              className="flex flex-col items-center justify-center p-6 rounded-2xl border border-slate-100 hover:bg-slate-50 hover:border-indigo-100 transition-all group w-full"
             >
               <div className={cn("p-4 rounded-2xl mb-4 group-hover:scale-110 transition-transform shadow-lg shadow-slate-100", action.color)}>
                 <action.icon className="w-6 h-6 text-white" />
