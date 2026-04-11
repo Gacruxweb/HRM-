@@ -10,6 +10,7 @@ export interface Employee {
   joinDate: string;
   salary: number;
   avatar?: string;
+  currentShift?: string;
 }
 
 export interface Department {
@@ -103,4 +104,22 @@ export interface EventRecord {
   location: string;
   type: 'Meeting' | 'Workshop' | 'Holiday' | 'Other';
   description?: string;
+}
+
+export interface ShiftRequest {
+  id: string;
+  type: 'Swap' | 'Change';
+  date: string;
+  requestFromId: string;
+  requestFromName: string;
+  shiftId: string;
+  shiftName: string;
+  requestToId?: string; // For Swap
+  requestToName?: string; // For Swap
+  newShiftId?: string; // For Change
+  newShiftName?: string; // For Change
+  remarks?: string;
+  status: 'Pending' | 'Approved' | 'Rejected';
+  createdAt: string;
+  isAdminCreated?: boolean;
 }

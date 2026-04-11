@@ -12,6 +12,7 @@ import Attendance from './components/Attendance';
 import Leave from './components/Leave';
 import Payroll from './components/Payroll';
 import Performance from './components/Performance';
+import Shift from './components/Shift';
 import AddEmployee from './components/AddEmployee';
 import Roles from './components/Roles';
 import Settings from './components/Settings';
@@ -91,6 +92,7 @@ export default function App() {
       );
       case 'departments': return <Departments />;
       case 'attendance': return <Attendance />;
+      case 'shift': return <Shift />;
       case 'leave': return <Leave />;
       case 'payroll': return <Payroll />;
       case 'performance': return <Performance />;
@@ -233,7 +235,7 @@ export default function App() {
           </AnimatePresence>
         </main>
 
-        <footer className="p-8 text-center text-slate-400 text-sm border-t border-slate-200 bg-white">
+        <footer className="pb-8 px-8 pt-[30px] text-center text-slate-400 text-sm border-t border-slate-200 bg-white">
           <p>© 2026 Siegecode HRM. All rights reserved. Built for modern HR teams.</p>
         </footer>
 

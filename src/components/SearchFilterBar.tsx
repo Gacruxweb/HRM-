@@ -38,7 +38,7 @@ export default function SearchFilterBar({
         />
       </div>
       
-      <div className="flex items-center gap-3 w-full md:w-auto">
+      <div className="relative flex items-center gap-3 w-full md:w-auto">
         {onDisplayModeChange && displayMode && (
           <div className="bg-slate-50 border border-slate-100 rounded-2xl p-1.5 flex items-center gap-1">
             <button 

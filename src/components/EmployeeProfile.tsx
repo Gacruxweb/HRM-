@@ -21,7 +21,9 @@ import {
   Activity,
   User,
   Smartphone,
-  BarChart3
+  BarChart3,
+  ArrowLeftRight,
+  RotateCcw
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import EmployeeInfoView from './EmployeeInfoView';
@@ -34,6 +36,9 @@ import SupervisorInfoView from './SupervisorInfoView';
 import DocumentPassportView from './DocumentPassportView';
 import PayrollView from './PayrollView';
 import PerformanceView from './PerformanceView';
+import EmployeeShiftView from './EmployeeShiftView';
+import ShiftRequestModal from './ShiftRequestModal';
+import { MOCK_SHIFTS } from '../mockData';
 
 interface EmployeeProfileProps {
   employee: any;
@@ -43,6 +48,8 @@ interface EmployeeProfileProps {
 
 export default function EmployeeProfile({ employee, onBack, isDashboard = false }: EmployeeProfileProps) {
   const [activeSubView, setActiveSubView] = useState<string | null>(null);
+  const [isShiftRequestModalOpen, setIsShiftRequestModalOpen] = useState(false);
+  const [shiftRequestType, setShiftRequestType] = useState<'Swap' | 'Change'>('Swap');
 
   if (activeSubView === 'info') {
     return <EmployeeInfoView employee={employee} onBack={() => setActiveSubView(null)} />;
@@ -82,6 +89,10 @@ export default function EmployeeProfile({ employee, onBack, isDashboard = false 
 
   if (activeSubView === 'performance') {
     return <PerformanceView employee={employee} onBack={() => setActiveSubView(null)} />;
+  }
+
+  if (activeSubView === 'shifts') {
+    return <EmployeeShiftView employee={employee} onBack={() => setActiveSubView(null)} isAdmin={!isDashboard} />;
   }
 
   return (
@@ -183,6 +194,9 @@ export default function EmployeeProfile({ employee, onBack, isDashboard = false 
             { label: 'Document & Passport', icon: FileText, color: 'bg-rose-500', onClick: () => setActiveSubView('documents') },
             { label: 'Payroll', icon: CreditCard, color: 'bg-emerald-600', onClick: () => setActiveSubView('payroll') },
             { label: 'Performance', icon: BarChart3, color: 'bg-indigo-600', onClick: () => setActiveSubView('performance') },
+            { label: 'Shift', icon: Clock, color: 'bg-blue-600', onClick: () => setActiveSubView('shifts') },
+            { label: 'Shift Swap Request', icon: ArrowLeftRight, color: 'bg-amber-500', onClick: () => { setShiftRequestType('Swap'); setIsShiftRequestModalOpen(true); } },
+            { label: 'Shift Change Request', icon: RotateCcw, color: 'bg-rose-600', onClick: () => { setShiftRequestType('Change'); setIsShiftRequestModalOpen(true); } },
           ].map((action, i) => (
             <button 
               key={i} 
@@ -294,6 +308,20 @@ export default function EmployeeProfile({ employee, onBack, isDashboard = false 
           ))}
         </div>
       </div>
+
+      <ShiftRequestModal 
+        isOpen={isShiftRequestModalOpen}
+        onClose={() => setIsShiftRequestModalOpen(false)}
+        onSave={(req) => {
+          console.log('New Request:', req);
+          setIsShiftRequestModalOpen(false);
+          // In a real app, we'd update the state or call an API
+        }}
+        type={shiftRequestType}
+        shifts={MOCK_SHIFTS}
+        initialRequesterId={employee.id}
+        isAdmin={!isDashboard}
+      />
     </div>
   );
 }

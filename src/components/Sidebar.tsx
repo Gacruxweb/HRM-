@@ -11,7 +11,8 @@ import {
   ChevronRight,
   ClipboardCheck,
   Calendar,
-  Shield
+  Shield,
+  Clock
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { motion } from 'motion/react';
@@ -29,6 +30,7 @@ export default function Sidebar({ activeTab, setActiveTab, userRole }: SidebarPr
     { id: 'roles', label: 'Roles', icon: Shield, hidden: userRole === 'employee' },
     { id: 'departments', label: 'Departments', icon: Building2, hidden: userRole === 'employee' },
     { id: 'attendance', label: 'Attendance', icon: ClipboardCheck },
+    { id: 'shift', label: 'Shift', icon: Clock },
     { id: 'leave', label: 'Leave Tracking', icon: Calendar },
     { id: 'events-schedule', label: 'Events & Schedule', icon: CalendarClock },
     { id: 'payroll', label: 'Payroll', icon: CreditCard, hidden: userRole === 'employee' },
