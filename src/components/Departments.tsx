@@ -16,17 +16,22 @@ import { cn } from '../lib/utils';
 import DepartmentForm from './DepartmentForm';
 import DepartmentDetails from './DepartmentDetails';
 import ManageBudgetModal from './ManageBudgetModal';
+import AssignMemberModal from './AssignMemberModal';
+import EmployeeProfile from './EmployeeProfile';
 import { Department } from '../types';
 import ActionMenu, { ActionItem } from './ActionMenu';
 import SearchFilterBar from './SearchFilterBar';
+import { UserPlus } from 'lucide-react';
 
 export default function Departments() {
-  const [view, setView] = useState<'list' | 'add' | 'edit' | 'details'>('list');
+  const [view, setView] = useState<'list' | 'add' | 'edit' | 'details' | 'profile'>('list');
   const [displayMode, setDisplayMode] = useState<'grid' | 'table'>('grid');
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [departments, setDepartments] = useState<Department[]>(MOCK_DEPARTMENTS);
   const [searchTerm, setSearchTerm] = useState('');
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
 
   const getDeptActions = (dept: Department): ActionItem[] => [
     { label: 'View Details', icon: Eye, onClick: () => handleViewDetails(dept) },
@@ -86,7 +91,25 @@ export default function Departments() {
   }
 
   if (view === 'details' && selectedDept) {
-    return <DepartmentDetails department={selectedDept} onBack={() => setView('list')} />;
+    return (
+      <DepartmentDetails 
+        department={selectedDept} 
+        onBack={() => setView('list')} 
+        onViewProfile={(emp) => {
+          setSelectedEmployee(emp);
+          setView('profile');
+        }}
+      />
+    );
+  }
+
+  if (view === 'profile' && selectedEmployee) {
+    return (
+      <EmployeeProfile 
+        employee={selectedEmployee} 
+        onBack={() => setView('details')} 
+      />
+    );
   }
 
   return (
@@ -127,6 +150,17 @@ export default function Departments() {
                   <div className="p-3 bg-indigo-50 rounded-xl group-hover:bg-indigo-100 transition-colors">
                     <Building2 className="w-6 h-6 text-indigo-600" />
                   </div>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedDept(dept);
+                      setIsAssignModalOpen(true);
+                    }}
+                    className="ml-auto mr-2 px-3 py-1.5 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-sm flex items-center gap-1.5"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    Add Member
+                  </button>
                   <ActionMenu items={getDeptActions(dept)} />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-1">{dept.name}</h3>
@@ -201,7 +235,20 @@ export default function Departments() {
                   <td className="px-6 py-4 text-slate-600">{dept.employeeCount} Members</td>
                   <td className="px-6 py-4 text-slate-600 font-bold">${(dept.budget / 1000).toFixed(0)}k</td>
                   <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
-                    <ActionMenu items={getDeptActions(dept)} className="inline-block" />
+                    <div className="flex items-center justify-end gap-2">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedDept(dept);
+                          setIsAssignModalOpen(true);
+                        }}
+                        className="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-colors flex items-center gap-1.5"
+                      >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        Add Member
+                      </button>
+                      <ActionMenu items={getDeptActions(dept)} className="inline-block" />
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -216,6 +263,22 @@ export default function Departments() {
           isOpen={isBudgetModalOpen}
           onClose={() => setIsBudgetModalOpen(false)}
           onSave={handleUpdateBudget}
+        />
+      )}
+
+      {isAssignModalOpen && selectedDept && (
+        <AssignMemberModal 
+          department={selectedDept}
+          isOpen={isAssignModalOpen}
+          onClose={() => setIsAssignModalOpen(false)}
+          onAssign={(empIds) => {
+            console.log(`Assigning employees ${empIds} to ${selectedDept.name}`);
+            setDepartments(departments.map(d => 
+              d.id === selectedDept.id 
+                ? { ...d, employeeCount: d.employeeCount + empIds.length } 
+                : d
+            ));
+          }}
         />
       )}
     </div>

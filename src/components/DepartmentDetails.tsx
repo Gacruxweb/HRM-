@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft, 
   Users, 
@@ -8,10 +8,20 @@ import {
   Mail,
   MoreVertical,
   Calendar,
-  Briefcase
+  Briefcase,
+  UserPlus,
+  Eye,
+  UserMinus,
+  AlertCircle,
+  RotateCcw,
+  X
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Department, Employee } from '../types';
 import { MOCK_EMPLOYEES } from '../mockData';
+import AssignMemberModal from './AssignMemberModal';
+import ActionMenu, { ActionItem } from './ActionMenu';
+import { cn } from '../lib/utils';
 import { 
   BarChart, 
   Bar, 
@@ -25,6 +35,7 @@ import {
 interface DepartmentDetailsProps {
   department: Department;
   onBack: () => void;
+  onViewProfile: (employee: Employee) => void;
 }
 
 const performanceData = [
@@ -35,8 +46,61 @@ const performanceData = [
   { month: 'May', score: 4.8 },
 ];
 
-export default function DepartmentDetails({ department, onBack }: DepartmentDetailsProps) {
-  const deptEmployees = MOCK_EMPLOYEES.filter(emp => emp.department === department.name);
+export default function DepartmentDetails({ department, onBack, onViewProfile }: DepartmentDetailsProps) {
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [employees, setEmployees] = useState<Employee[]>(MOCK_EMPLOYEES);
+  const [removingEmp, setRemovingEmp] = useState<Employee | null>(null);
+  const [undoInfo, setUndoInfo] = useState<{ emp: Employee; timeLeft: number } | null>(null);
+  const undoTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const deptEmployees = employees.filter(emp => emp.department === department.name);
+
+  useEffect(() => {
+    if (undoInfo && undoInfo.timeLeft > 0) {
+      undoTimerRef.current = setTimeout(() => {
+        setUndoInfo(prev => prev ? { ...prev, timeLeft: prev.timeLeft - 1 } : null);
+      }, 1000);
+    } else if (undoInfo && undoInfo.timeLeft === 0) {
+      setUndoInfo(null);
+    }
+    return () => {
+      if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    };
+  }, [undoInfo]);
+
+  const handleRemoveClick = (emp: Employee) => {
+    setRemovingEmp(emp);
+  };
+
+  const confirmRemoval = () => {
+    if (removingEmp) {
+      const empToUndo = { ...removingEmp };
+      setEmployees(prev => prev.map(e => e.id === removingEmp.id ? { ...e, department: '' } : e));
+      setUndoInfo({ emp: empToUndo, timeLeft: 15 });
+      setRemovingEmp(null);
+    }
+  };
+
+  const handleUndo = () => {
+    if (undoInfo) {
+      setEmployees(prev => prev.map(e => e.id === undoInfo.emp.id ? { ...e, department: department.name } : e));
+      setUndoInfo(null);
+    }
+  };
+
+  const getMemberActions = (emp: Employee): ActionItem[] => [
+    { 
+      label: 'View Profile', 
+      icon: Eye, 
+      onClick: () => onViewProfile(emp) 
+    },
+    { 
+      label: 'Remove from Dept', 
+      icon: UserMinus, 
+      onClick: () => handleRemoveClick(emp),
+      variant: 'danger'
+    },
+  ];
 
   return (
     <div className="space-y-8">
@@ -95,7 +159,13 @@ export default function DepartmentDetails({ department, onBack }: DepartmentDeta
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100 flex justify-between items-center">
               <h3 className="text-lg font-bold text-slate-900">Department Members</h3>
-              <button className="text-indigo-600 text-sm font-bold hover:underline">View All</button>
+              <button 
+                onClick={() => setIsAssignModalOpen(true)}
+                className="text-indigo-600 text-sm font-bold hover:underline flex items-center gap-1.5"
+              >
+                <UserPlus className="w-4 h-4" />
+                Add member
+              </button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
@@ -128,9 +198,7 @@ export default function DepartmentDetails({ department, onBack }: DepartmentDeta
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-slate-400 hover:text-slate-600">
-                          <MoreVertical className="w-5 h-5" />
-                        </button>
+                        <ActionMenu items={getMemberActions(emp)} />
                       </td>
                     </tr>
                   ))}
@@ -199,6 +267,105 @@ export default function DepartmentDetails({ department, onBack }: DepartmentDeta
           </div>
         </div>
       </div>
+
+      {isAssignModalOpen && (
+        <AssignMemberModal 
+          department={department}
+          isOpen={isAssignModalOpen}
+          onClose={() => setIsAssignModalOpen(false)}
+          onAssign={(empIds) => {
+            setEmployees(prev => prev.map(emp => 
+              empIds.includes(emp.id) ? { ...emp, department: department.name } : emp
+            ));
+          }}
+        />
+      )}
+
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {removingEmp && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setRemovingEmp(null)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-sm bg-white rounded-3xl shadow-2xl p-6 text-center border border-slate-200"
+            >
+              <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <UserMinus className="w-8 h-8 text-rose-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Remove Member?</h3>
+              <p className="text-sm text-slate-500 mb-8 leading-relaxed">
+                Are you sure you want to remove <span className="font-bold text-slate-700">{removingEmp.name}</span> from the {department.name} department?
+              </p>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setRemovingEmp(null)}
+                  className="flex-1 py-3 px-4 rounded-xl border border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmRemoval}
+                  className="flex-1 py-3 px-4 rounded-xl bg-rose-600 text-white text-sm font-bold hover:bg-rose-700 transition-all shadow-lg shadow-rose-100"
+                >
+                  Remove
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Undo Toast */}
+      <AnimatePresence>
+        {undoInfo && (
+          <motion.div 
+            initial={{ opacity: 0, y: 50, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 50, x: '-50%' }}
+            className="fixed bottom-8 left-1/2 z-[120] w-full max-w-md px-4"
+          >
+            <div className="bg-slate-900 text-white rounded-2xl p-4 shadow-2xl flex items-center justify-between gap-4 border border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center relative overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-indigo-500 transition-all duration-1000 ease-linear"
+                    style={{ height: `${(undoInfo.timeLeft / 15) * 100}%`, top: 'auto' }}
+                  />
+                  <span className="relative z-10 font-bold text-xs">{undoInfo.timeLeft}s</span>
+                </div>
+                <div>
+                  <p className="text-sm font-bold">{undoInfo.emp.name} removed</p>
+                  <p className="text-xs text-slate-400">Member has been unassigned.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={handleUndo}
+                  className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  Undo
+                </button>
+                <button 
+                  onClick={() => setUndoInfo(null)}
+                  className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
