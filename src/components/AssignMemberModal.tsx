@@ -167,10 +167,10 @@ export default function AssignMemberModal({ department, isOpen, onClose, onAssig
                             Already in {emp.department}
                           </div>
                         )}
-                        {!isAssignedToOther && (
+                        {isAlreadyInDept && (
                           <div className="flex items-center gap-1 mt-1 text-[10px] font-bold text-indigo-600">
                             <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />
-                            In this shift
+                            In this department
                           </div>
                         )}
                       </div>

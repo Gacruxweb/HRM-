@@ -471,6 +471,102 @@ export const MOCK_PAYROLL: PayrollRecord[] = [
     deductions: 1500,
     netPay: 7416,
     status: 'Paid'
+  },
+  {
+    id: '3',
+    employeeId: '3',
+    employeeName: 'Elena Rodriguez',
+    month: 'March',
+    year: 2024,
+    basicSalary: 6500,
+    bonus: 0,
+    deductions: 1100,
+    netPay: 5400,
+    status: 'Paid'
+  },
+  {
+    id: '4',
+    employeeId: '4',
+    employeeName: 'David Wilson',
+    month: 'March',
+    year: 2024,
+    basicSalary: 5166,
+    bonus: 250,
+    deductions: 900,
+    netPay: 4516,
+    status: 'Paid'
+  },
+  {
+    id: '5',
+    employeeId: '5',
+    employeeName: 'Aisha Khan',
+    month: 'March',
+    year: 2024,
+    basicSalary: 6000,
+    bonus: 300,
+    deductions: 1000,
+    netPay: 5300,
+    status: 'Pending'
+  },
+  {
+    id: '6',
+    employeeId: '6',
+    employeeName: 'James Miller',
+    month: 'March',
+    year: 2024,
+    basicSalary: 7333,
+    bonus: 0,
+    deductions: 1300,
+    netPay: 6033,
+    status: 'Pending'
+  },
+  {
+    id: '7',
+    employeeId: '7',
+    employeeName: 'Sophia Garcia',
+    month: 'March',
+    year: 2024,
+    basicSalary: 6250,
+    bonus: 400,
+    deductions: 1050,
+    netPay: 5600,
+    status: 'Pending'
+  },
+  {
+    id: '8',
+    employeeId: '8',
+    employeeName: 'Liam Martinez',
+    month: 'March',
+    year: 2024,
+    basicSalary: 4833,
+    bonus: 150,
+    deductions: 800,
+    netPay: 4183,
+    status: 'Paid'
+  },
+  {
+    id: '9',
+    employeeId: '9',
+    employeeName: 'Isabella Brown',
+    month: 'March',
+    year: 2024,
+    basicSalary: 4583,
+    bonus: 0,
+    deductions: 750,
+    netPay: 3833,
+    status: 'Paid'
+  },
+  {
+    id: '10',
+    employeeId: '10',
+    employeeName: 'Noah Davis',
+    month: 'March',
+    year: 2024,
+    basicSalary: 7666,
+    bonus: 600,
+    deductions: 1400,
+    netPay: 6866,
+    status: 'Paid'
   }
 ];
 
@@ -501,17 +597,77 @@ export const MOCK_ATTENDANCE: AttendanceRecord[] = [
     employeeName: 'Elena Rodriguez',
     date: '2024-04-08',
     checkIn: '08:45 AM',
-    checkOut: null,
+    checkOut: '05:15 PM',
     status: 'Present',
     location: 'Office'
   },
   {
     id: '4',
+    employeeId: '4',
+    employeeName: 'David Wilson',
+    date: '2024-04-08',
+    checkIn: null,
+    checkOut: null,
+    status: 'Absent',
+    location: 'N/A'
+  },
+  {
+    id: '5',
     employeeId: '5',
     employeeName: 'Aisha Khan',
     date: '2024-04-08',
     checkIn: '09:00 AM',
     checkOut: '05:00 PM',
+    status: 'Present',
+    location: 'Office'
+  },
+  {
+    id: '6',
+    employeeId: '6',
+    employeeName: 'James Miller',
+    date: '2024-04-08',
+    checkIn: '08:30 AM',
+    checkOut: '04:30 PM',
+    status: 'Present',
+    location: 'Remote'
+  },
+  {
+    id: '7',
+    employeeId: '7',
+    employeeName: 'Sophia Garcia',
+    date: '2024-04-08',
+    checkIn: '09:30 AM',
+    checkOut: '06:30 PM',
+    status: 'Late',
+    location: 'Office'
+  },
+  {
+    id: '8',
+    employeeId: '8',
+    employeeName: 'Liam Martinez',
+    date: '2024-04-08',
+    checkIn: '08:50 AM',
+    checkOut: '05:50 PM',
+    status: 'Present',
+    location: 'Office'
+  },
+  {
+    id: '9',
+    employeeId: '9',
+    employeeName: 'Isabella Brown',
+    date: '2024-04-08',
+    checkIn: '09:05 AM',
+    checkOut: '05:05 PM',
+    status: 'Present',
+    location: 'Remote'
+  },
+  {
+    id: '10',
+    employeeId: '10',
+    employeeName: 'Noah Davis',
+    date: '2024-04-08',
+    checkIn: '08:40 AM',
+    checkOut: '05:40 PM',
     status: 'Present',
     location: 'Office'
   }

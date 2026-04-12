@@ -10,6 +10,7 @@ interface SearchFilterBarProps {
   onDisplayModeChange?: (mode: 'grid' | 'table') => void;
   onFilterClick?: () => void;
   isFilterActive?: boolean;
+  middleElement?: React.ReactNode;
   rightElement?: React.ReactNode;
   className?: string;
 }
@@ -22,6 +23,7 @@ export default function SearchFilterBar({
   onDisplayModeChange,
   onFilterClick,
   isFilterActive = false,
+  middleElement,
   rightElement,
   className
 }: SearchFilterBarProps) {
@@ -65,6 +67,8 @@ export default function SearchFilterBar({
             </button>
           </div>
         )}
+
+        {middleElement}
 
         {onFilterClick && (
           <button 

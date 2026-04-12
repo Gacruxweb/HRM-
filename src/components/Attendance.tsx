@@ -13,14 +13,18 @@ import {
   Edit,
   Trash2,
   Eye,
-  History
+  History,
+  ChevronDown
 } from 'lucide-react';
-import { MOCK_ATTENDANCE } from '../mockData';
+import { MOCK_ATTENDANCE, MOCK_DEPARTMENTS, MOCK_SHIFTS, MOCK_EMPLOYEES } from '../mockData';
 import { cn } from '../lib/utils';
 import MarkAttendanceModal from './MarkAttendanceModal';
 import { AttendanceRecord } from '../types';
 import ActionMenu, { ActionItem } from './ActionMenu';
 import SearchFilterBar from './SearchFilterBar';
+import CustomPeriodModal from './CustomPeriodModal';
+import AttendancePolicyView from './AttendancePolicyView';
+import { ShieldCheck } from 'lucide-react';
 
 export default function Attendance() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -29,7 +33,14 @@ export default function Attendance() {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(MOCK_ATTENDANCE);
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [locationFilter, setLocationFilter] = useState<string>('All');
+  const [departmentFilter, setDepartmentFilter] = useState<string>('All');
+  const [shiftFilter, setShiftFilter] = useState<string>('All');
+  const [employeeFilter, setEmployeeFilter] = useState<string>('All');
+  const [timeFilter, setTimeFilter] = useState<string>('Today');
+  const [customDateRange, setCustomDateRange] = useState<{ from: string; to: string } | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isCustomDateModalOpen, setIsCustomDateModalOpen] = useState(false);
+  const [showPolicy, setShowPolicy] = useState(false);
 
   const getAttendanceActions = (record: AttendanceRecord): ActionItem[] => [
     { label: 'View Details', icon: Eye, onClick: () => console.log('View', record.id) },
@@ -42,7 +53,14 @@ export default function Attendance() {
     const matchesSearch = record.employeeName.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'All' || record.status === statusFilter;
     const matchesLocation = locationFilter === 'All' || record.location === locationFilter;
-    return matchesSearch && matchesStatus && matchesLocation;
+    
+    // For department and shift, we need to find the employee first
+    const employee = MOCK_EMPLOYEES.find(e => e.id === record.employeeId);
+    const matchesDepartment = departmentFilter === 'All' || (employee && employee.department === departmentFilter);
+    const matchesShift = shiftFilter === 'All' || (employee && employee.currentShift === shiftFilter);
+    const matchesEmployee = employeeFilter === 'All' || record.employeeId === employeeFilter;
+
+    return matchesSearch && matchesStatus && matchesLocation && matchesDepartment && matchesShift && matchesEmployee;
   });
 
   const handleSaveAttendance = (newRecord: Omit<AttendanceRecord, 'id'>) => {
@@ -60,6 +78,10 @@ export default function Attendance() {
     { label: 'Remote', count: attendanceRecords.filter(r => r.location === 'Remote').length, icon: MapPin, color: 'text-indigo-600', bg: 'bg-indigo-50' },
   ];
 
+  if (showPolicy) {
+    return <AttendancePolicyView onBack={() => setShowPolicy(false)} />;
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -71,6 +93,13 @@ export default function Attendance() {
           <button className="flex-1 sm:flex-none px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
             <Download className="w-4 h-4" />
             Export Report
+          </button>
+          <button 
+            onClick={() => setShowPolicy(true)}
+            className="flex-1 sm:flex-none px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+          >
+            <ShieldCheck className="w-4 h-4 text-indigo-500" />
+            Policy
           </button>
           <button 
             onClick={() => setIsModalOpen(true)}
@@ -110,42 +139,113 @@ export default function Attendance() {
           displayMode={displayMode}
           onDisplayModeChange={setDisplayMode}
           onFilterClick={() => setIsFilterOpen(!isFilterOpen)}
-          isFilterActive={statusFilter !== 'All' || locationFilter !== 'All'}
+          isFilterActive={statusFilter !== 'All' || locationFilter !== 'All' || departmentFilter !== 'All' || shiftFilter !== 'All' || employeeFilter !== 'All'}
           className="border-none shadow-none px-4"
+          middleElement={
+            <div className="relative">
+              <select 
+                className="pl-4 pr-8 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all appearance-none text-sm font-bold text-slate-600"
+                value={timeFilter}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setTimeFilter(value);
+                  if (value === 'Custom') {
+                    setIsCustomDateModalOpen(true);
+                  }
+                }}
+              >
+                <option value="Today">Today</option>
+                <option value="Yesterday">Yesterday</option>
+                <option value="This Week">This Week</option>
+                <option value="This Month">This Month</option>
+                <option value="Custom">Custom Period</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            </div>
+          }
           rightElement={
             isFilterOpen && (
-              <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="space-y-4">
+              <div className="absolute right-0 top-full mt-2 w-[401px] h-[320px] bg-white border border-slate-200 rounded-2xl shadow-xl z-20 p-5 animate-in fade-in slide-in-from-top-2 duration-200 overflow-y-auto">
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Location</label>
+                      <select 
+                        className="w-full p-2 bg-slate-50 border border-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                        value={locationFilter}
+                        onChange={(e) => setLocationFilter(e.target.value)}
+                      >
+                        <option value="All">All</option>
+                        <option value="Office">Office</option>
+                        <option value="Remote">Remote</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Status</label>
+                      <select 
+                        className="w-full p-2 bg-slate-50 border border-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                      >
+                        <option value="All">All</option>
+                        <option value="Present">Present</option>
+                        <option value="Late">Late</option>
+                        <option value="Absent">Absent</option>
+                        <option value="Half Day">Half Day</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Department</label>
+                      <select 
+                        className="w-full p-2 bg-slate-50 border border-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                        value={departmentFilter}
+                        onChange={(e) => setDepartmentFilter(e.target.value)}
+                      >
+                        <option value="All">All</option>
+                        {MOCK_DEPARTMENTS.map(dept => (
+                          <option key={dept.id} value={dept.name}>{dept.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Shift</label>
+                      <select 
+                        className="w-full p-2 bg-slate-50 border border-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
+                        value={shiftFilter}
+                        onChange={(e) => setShiftFilter(e.target.value)}
+                      >
+                        <option value="All">All</option>
+                        {MOCK_SHIFTS.map(shift => (
+                          <option key={shift.id} value={shift.name}>{shift.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Status</label>
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Employee</label>
                     <select 
                       className="w-full p-2 bg-slate-50 border border-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
+                      value={employeeFilter}
+                      onChange={(e) => setEmployeeFilter(e.target.value)}
                     >
-                      <option value="All">All Statuses</option>
-                      <option value="Present">Present</option>
-                      <option value="Late">Late</option>
-                      <option value="Absent">Absent</option>
-                      <option value="Half Day">Half Day</option>
+                      <option value="All">All Employees</option>
+                      {MOCK_EMPLOYEES.map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.name}</option>
+                      ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Location</label>
-                    <select 
-                      className="w-full p-2 bg-slate-50 border border-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
-                      value={locationFilter}
-                      onChange={(e) => setLocationFilter(e.target.value)}
-                    >
-                      <option value="All">All Locations</option>
-                      <option value="Office">Office</option>
-                      <option value="Remote">Remote</option>
-                    </select>
-                  </div>
+
                   <button 
                     onClick={() => {
                       setStatusFilter('All');
                       setLocationFilter('All');
+                      setDepartmentFilter('All');
+                      setShiftFilter('All');
+                      setEmployeeFilter('All');
                       setIsFilterOpen(false);
                     }}
                     className="w-full py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
@@ -263,6 +363,20 @@ export default function Attendance() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onSave={handleSaveAttendance} 
+      />
+
+      <CustomPeriodModal 
+        isOpen={isCustomDateModalOpen}
+        onClose={() => {
+          setIsCustomDateModalOpen(false);
+          if (!customDateRange) setTimeFilter('Today');
+        }}
+        onApply={(from, to) => {
+          setCustomDateRange({ from, to });
+          setIsCustomDateModalOpen(false);
+        }}
+        initialFrom={customDateRange?.from}
+        initialTo={customDateRange?.to}
       />
     </div>
   );

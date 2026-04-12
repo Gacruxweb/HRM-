@@ -53,7 +53,7 @@ export interface AttendanceRecord {
   checkIn: string;
   checkOut: string | null;
   status: 'Present' | 'Absent' | 'Late' | 'Half Day';
-  location: 'Office' | 'Remote';
+  location: 'Office' | 'Remote' | 'N/A';
 }
 
 export interface PerformanceReview {
@@ -102,7 +102,7 @@ export interface EventRecord {
   startTime: string;
   endTime: string;
   location: string;
-  type: 'Meeting' | 'Workshop' | 'Holiday' | 'Other';
+  type: 'Meeting' | 'Workshop' | 'Holiday' | 'Deadline' | 'Other';
   description?: string;
 }
 

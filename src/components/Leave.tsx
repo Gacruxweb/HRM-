@@ -12,7 +12,8 @@ import {
   Trash2,
   Check,
   X,
-  Settings
+  Settings,
+  ChevronDown
 } from 'lucide-react';
 import { MOCK_LEAVE_REQUESTS } from '../mockData';
 import { cn } from '../lib/utils';
@@ -20,13 +21,18 @@ import NewLeaveRequestModal from './NewLeaveRequestModal';
 import ActionMenu, { ActionItem } from './ActionMenu';
 import LeaveSetting from './LeaveSetting';
 import SearchFilterBar from './SearchFilterBar';
+import CustomPeriodModal from './CustomPeriodModal';
 
 export default function Leave() {
   const [requests, setRequests] = useState(MOCK_LEAVE_REQUESTS);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [typeFilter, setTypeFilter] = useState<string>('All');
+  const [startDateFilter, setStartDateFilter] = useState<string>('');
+  const [endDateFilter, setEndDateFilter] = useState<string>('');
+  const [timeFilter, setTimeFilter] = useState<string>('All Time');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isCustomDateModalOpen, setIsCustomDateModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [displayMode, setDisplayMode] = useState<'grid' | 'table'>('table');
   const [showSettings, setShowSettings] = useState(false);
@@ -49,7 +55,12 @@ export default function Leave() {
                          request.reason.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'All' || request.status === statusFilter;
     const matchesType = typeFilter === 'All' || request.type === typeFilter;
-    return matchesSearch && matchesStatus && matchesType;
+    
+    const requestDate = new Date(request.startDate);
+    const matchesStartDate = !startDateFilter || requestDate >= new Date(startDateFilter);
+    const matchesEndDate = !endDateFilter || requestDate <= new Date(endDateFilter);
+
+    return matchesSearch && matchesStatus && matchesType && matchesStartDate && matchesEndDate;
   });
 
   const handleSaveRequest = (newRequest: any) => {
@@ -111,12 +122,48 @@ export default function Leave() {
           onFilterClick={() => setIsFilterOpen(!isFilterOpen)}
           isFilterActive={statusFilter !== 'All' || typeFilter !== 'All'}
           className="border-none shadow-none px-4"
+          middleElement={
+            <div className="relative">
+              <select 
+                className="pl-4 pr-10 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all appearance-none text-sm font-bold text-slate-600 min-w-[140px]"
+                value={timeFilter}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setTimeFilter(value);
+                  if (value === 'Custom') {
+                    setIsCustomDateModalOpen(true);
+                  } else if (value === 'All Time') {
+                    setStartDateFilter('');
+                    setEndDateFilter('');
+                  } else {
+                    const today = new Date();
+                    if (value === 'Today') {
+                      const dateStr = today.toISOString().split('T')[0];
+                      setStartDateFilter(dateStr);
+                      setEndDateFilter(dateStr);
+                    } else if (value === 'This Month') {
+                      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                      const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                      setStartDateFilter(firstDay.toISOString().split('T')[0]);
+                      setEndDateFilter(lastDay.toISOString().split('T')[0]);
+                    }
+                  }
+                }}
+              >
+                <option value="All Time">All Time</option>
+                <option value="Today">Today</option>
+                <option value="This Month">This Month</option>
+                <option value="Custom">Custom Period</option>
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            </div>
+          }
           rightElement={
             isFilterOpen && (
-              <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 p-4 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-slate-200 rounded-2xl shadow-xl z-20 p-5 animate-in fade-in slide-in-from-top-2 duration-200">
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Status</label>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Status</label>
                     <select 
                       className="w-full p-2 bg-slate-50 border border-slate-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500"
                       value={statusFilter}
@@ -147,6 +194,9 @@ export default function Leave() {
                     onClick={() => {
                       setStatusFilter('All');
                       setTypeFilter('All');
+                      setStartDateFilter('');
+                      setEndDateFilter('');
+                      setTimeFilter('All Time');
                       setIsFilterOpen(false);
                     }}
                     className="w-full py-2 text-xs font-bold text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
@@ -252,6 +302,21 @@ export default function Leave() {
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         onSave={handleSaveRequest} 
+      />
+
+      <CustomPeriodModal 
+        isOpen={isCustomDateModalOpen}
+        onClose={() => {
+          setIsCustomDateModalOpen(false);
+          if (!startDateFilter) setTimeFilter('All Time');
+        }}
+        onApply={(from, to) => {
+          setStartDateFilter(from);
+          setEndDateFilter(to);
+          setIsCustomDateModalOpen(false);
+        }}
+        initialFrom={startDateFilter}
+        initialTo={endDateFilter}
       />
     </div>
   );

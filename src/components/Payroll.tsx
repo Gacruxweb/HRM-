@@ -18,6 +18,8 @@ import { MOCK_PAYROLL } from '../mockData';
 import { cn } from '../lib/utils';
 import ActionMenu, { ActionItem } from './ActionMenu';
 import SearchFilterBar from './SearchFilterBar';
+import PayrollSetting from './PayrollSetting';
+import { Settings } from 'lucide-react';
 
 export default function Payroll() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,6 +27,7 @@ export default function Payroll() {
   const [monthFilter, setMonthFilter] = useState<string>('All');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [displayMode, setDisplayMode] = useState<'grid' | 'table'>('table');
+  const [showSetting, setShowSetting] = useState(false);
 
   const getPayrollActions = (record: any): ActionItem[] => [
     { label: 'View Payslip', icon: FileText, onClick: () => console.log('View', record.id) },
@@ -43,6 +46,10 @@ export default function Payroll() {
     return matchesSearch && matchesStatus && matchesMonth;
   });
 
+  if (showSetting) {
+    return <PayrollSetting onBack={() => setShowSetting(false)} />;
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -54,6 +61,13 @@ export default function Payroll() {
           <button className="flex-1 sm:flex-none px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
             <Download className="w-4 h-4" />
             Export CSV
+          </button>
+          <button 
+            onClick={() => setShowSetting(true)}
+            className="flex-1 sm:flex-none px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 hover:bg-slate-50 transition-all flex items-center justify-center gap-2"
+          >
+            <Settings className="w-4 h-4 text-indigo-500" />
+            Payroll Setting
           </button>
           <button className="flex-1 sm:flex-none px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 transition-all shadow-sm flex items-center justify-center gap-2">
             <CreditCard className="w-4 h-4" />

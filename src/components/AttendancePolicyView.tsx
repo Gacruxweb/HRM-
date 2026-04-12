@@ -9,41 +9,42 @@ import {
   Info,
   CheckCircle2,
   MoreVertical,
-  Edit
+  Edit,
+  ShieldCheck
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ConfirmationModal from './ConfirmationModal';
-import { LeavePolicyRecord } from '../types/leave';
+import { AttendancePolicyRecord } from '../types/attendance';
 import SearchFilterBar from './SearchFilterBar';
 
-interface LeavePolicyViewProps {
+interface AttendancePolicyViewProps {
   onBack: () => void;
 }
 
-export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
+export default function AttendancePolicyView({ onBack }: AttendancePolicyViewProps) {
   const formRef = useRef<HTMLDivElement>(null);
-  const [policies, setPolicies] = useState<LeavePolicyRecord[]>([
+  const [policies, setPolicies] = useState<AttendancePolicyRecord[]>([
     { 
       id: '1', 
-      name: 'Absent Policy', 
+      name: 'Late Check-in Policy', 
       countType: 'Daily basis', 
-      considerableValue: 8, 
-      adjustedValue: 1,
+      considerableValue: 15, // minutes
+      adjustedValue: 0.5, // half day deduction if late more than 15 mins
       considerDeduction: true,
       considerCumulativeDeduction: false,
       deductFromSalary: true,
-      description: 'Policy for handling employee absences.'
+      description: 'Policy for handling late arrivals. If an employee is more than 15 minutes late, it will be considered a half-day deduction.'
     },
     { 
       id: '2', 
-      name: 'Underwork Policy', 
+      name: 'Early Departure Policy', 
       countType: 'Hourly basis', 
       considerableValue: 1, 
       adjustedValue: 1,
       considerDeduction: true,
       considerCumulativeDeduction: true,
       deductFromSalary: false,
-      description: 'Policy for worked less than expected hours.'
+      description: 'Policy for leaving before shift completion. Cumulative hours will be deducted from leave balance.'
     },
   ]);
 
@@ -51,7 +52,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
   const [selectedId, setSelectedId] = useState<string | null>(policies[0]?.id || null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<Partial<LeavePolicyRecord>>({
+  const [formData, setFormData] = useState<Partial<AttendancePolicyRecord>>({
     name: '',
     countType: 'Daily basis',
     considerableValue: 0,
@@ -64,7 +65,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
 
   const [deleteModal, setDeleteModal] = useState<{
     isOpen: boolean;
-    record: LeavePolicyRecord | null;
+    record: AttendancePolicyRecord | null;
   }>({
     isOpen: false,
     record: null
@@ -75,11 +76,11 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (isEditing && selectedId) {
-      setPolicies(prev => prev.map(p => p.id === selectedId ? { ...p, ...formData as LeavePolicyRecord } : p));
+      setPolicies(prev => prev.map(p => p.id === selectedId ? { ...p, ...formData as AttendancePolicyRecord } : p));
       setIsEditing(false);
     } else {
-      const newPolicy: LeavePolicyRecord = {
-        ...formData as LeavePolicyRecord,
+      const newPolicy: AttendancePolicyRecord = {
+        ...formData as AttendancePolicyRecord,
         id: Math.random().toString(36).substr(2, 9)
       };
       setPolicies([...policies, newPolicy]);
@@ -102,7 +103,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
     setIsEditing(false);
   };
 
-  const handleEdit = (policy: LeavePolicyRecord) => {
+  const handleEdit = (policy: AttendancePolicyRecord) => {
     setFormData(policy);
     setSelectedId(policy.id);
     setIsEditing(true);
@@ -118,11 +119,8 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
     }, 100);
   };
 
-  const handleSelect = (policy: LeavePolicyRecord) => {
+  const handleSelect = (policy: AttendancePolicyRecord) => {
     setSelectedId(policy.id);
-    // When selecting, we don't necessarily want to edit unless they click edit
-    // But the user said "when admin press in edit policy input filled open with this policy and update button open"
-    // So handleSelect just views details
   };
 
   const confirmDelete = () => {
@@ -148,13 +146,13 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
         <button onClick={onBack} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <span className="hover:text-slate-900 cursor-pointer" onClick={onBack}>Leave Setting</span>
+        <span className="hover:text-slate-900 cursor-pointer" onClick={onBack}>Attendance Tracking</span>
         <ChevronRight className="w-4 h-4" />
-        <span className="text-indigo-600 font-bold">Leave Policy</span>
+        <span className="text-indigo-600 font-bold">Attendance Policy</span>
       </div>
 
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Leave Policy Management</h2>
+        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Attendance Policy Management</h2>
       </div>
 
       {/* Top Section: Input Form */}
@@ -170,7 +168,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
                 <input 
                   type="text" 
                   required
-                  placeholder="e.g. Absent Policy"
+                  placeholder="e.g. Late Check-in Policy"
                   className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -192,7 +190,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Considerable Hour <span className="text-rose-500">*</span></label>
+                <label className="text-sm font-medium text-slate-700">Considerable Value (Mins/Hours) <span className="text-rose-500">*</span></label>
                 <input 
                   type="number" 
                   required
@@ -206,6 +204,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
                 <input 
                   type="number" 
                   required
+                  step="0.5"
                   className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
                   value={formData.adjustedValue}
                   onChange={(e) => setFormData({ ...formData, adjustedValue: Number(e.target.value) })}
@@ -225,7 +224,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
                 </div>
                 <textarea 
                   rows={6}
-                  placeholder="Describe the leave policy rules and conditions..."
+                  placeholder="Describe the attendance policy rules and conditions..."
                   className="w-full px-4 py-4 bg-white outline-none text-sm text-slate-600 leading-relaxed resize-none"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -265,7 +264,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
         />
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-            <h3 className="text-lg font-bold text-slate-900">Policy List</h3>
+            <h3 className="text-lg font-bold text-slate-900">Attendance Policy List</h3>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[500px]">
           {/* Left Side: Policy List (Tabs) */}
@@ -337,7 +336,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
                     <div className="flex items-center gap-4 text-sm font-medium text-slate-500">
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-4 h-4 text-indigo-500" />
-                        <span>Considerable: <span className="text-slate-900 font-bold">{selectedPolicy.considerableValue} Hours</span></span>
+                        <span>Considerable: <span className="text-slate-900 font-bold">{selectedPolicy.considerableValue} {selectedPolicy.countType === 'Daily basis' ? 'Mins' : 'Hours'}</span></span>
                       </div>
                       <div className="w-px h-3 bg-slate-300" />
                       <div className="flex items-center gap-1.5">
@@ -359,7 +358,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
                   <div className="flex items-start gap-3 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
                     <Info className="w-5 h-5 text-indigo-500 mt-0.5" />
                     <p className="text-xs text-indigo-700 leading-relaxed">
-                      <strong>Note:</strong> This policy configuration is active and applies to all associated leave groups and employee assignments. Changes here will reflect across all linked records.
+                      <strong>Note:</strong> This policy configuration is active and applies to all associated attendance tracking and payroll calculations. Changes here will reflect across all linked records.
                     </p>
                   </div>
                 </div>
@@ -367,7 +366,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-center p-12">
                 <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mb-6">
-                  <FileText className="w-10 h-10 text-slate-200" />
+                  <ShieldCheck className="w-10 h-10 text-slate-200" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 mb-2">Select a Policy</h3>
                 <p className="text-slate-500 max-w-xs mx-auto">Choose a policy from the list on the left to view its detailed configuration and description.</p>
@@ -382,7 +381,7 @@ export default function LeavePolicyView({ onBack }: LeavePolicyViewProps) {
         isOpen={deleteModal.isOpen}
         onClose={() => setDeleteModal({ isOpen: false, record: null })}
         onConfirm={confirmDelete}
-        title="Delete Leave Policy"
+        title="Delete Attendance Policy"
         message={`Are you sure you want to delete the policy "${deleteModal.record?.name}"? This action cannot be undone.`}
         variant="danger"
         confirmText="Delete"

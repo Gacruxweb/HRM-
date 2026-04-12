@@ -275,33 +275,64 @@ export default function EmployeeProfile({ employee, onBack, isDashboard = false 
         <h3 className="text-lg font-bold text-slate-900 mb-6">Upcoming Events & Schedule</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
-            { title: 'Team Meeting', date: 'Jan 5, 2025', time: '10:00 AM - 11:00 AM', loc: 'Conference Room A', type: 'meeting', color: 'border-purple-500 bg-purple-50' },
-            { title: 'Project Deadline', date: 'Jan 10, 2025', time: '5:00 PM', loc: 'Remote', type: 'deadline', color: 'border-rose-500 bg-rose-50' },
-            { title: 'Company Holiday', date: 'Jan 15, 2025', time: 'All Day', loc: 'Office Closed', type: 'holiday', color: 'border-blue-500 bg-blue-50' },
+            { 
+              title: 'Team Meeting', 
+              date: 'Jan 5, 2025', 
+              time: '10:00 AM - 11:00 AM', 
+              loc: 'Conference Room A', 
+              type: 'Meeting',
+              cardBg: 'bg-[#fcf8ff]',
+              leftBar: 'bg-gradient-to-b from-[#8b5cf6] to-[#d8b4fe]',
+              badge: 'bg-[#f3e8ff] text-[#8b5cf6]'
+            },
+            { 
+              title: 'Project Deadline', 
+              date: 'Jan 10, 2025', 
+              time: '5:00 PM', 
+              loc: 'Remote', 
+              type: 'Deadline',
+              cardBg: 'bg-[#fff8f9]',
+              leftBar: 'bg-gradient-to-b from-[#e11d48] to-[#fda4af]',
+              badge: 'bg-[#ffe4e6] text-[#e11d48]'
+            },
+            { 
+              title: 'Company Holiday', 
+              date: 'Jan 15, 2025', 
+              time: 'All Day', 
+              loc: 'Office Closed', 
+              type: 'Holiday',
+              cardBg: 'bg-[#f8faff]',
+              leftBar: 'bg-gradient-to-b from-[#2563eb] to-[#93c5fd]',
+              badge: 'bg-[#dbeafe] text-[#2563eb]'
+            },
           ].map((event, i) => (
-            <div key={i} className={cn("p-6 rounded-2xl border-l-4 shadow-sm", event.color)}>
-              <div className="flex justify-between items-start mb-4">
-                <h4 className="font-bold text-slate-900">{event.title}</h4>
-                <span className={cn(
-                  "px-2 py-0.5 rounded text-[10px] font-bold uppercase",
-                  event.type === 'meeting' ? "bg-purple-200 text-purple-700" :
-                  event.type === 'deadline' ? "bg-rose-200 text-rose-700" : "bg-blue-200 text-blue-700"
-                )}>
-                  {event.type}
-                </span>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs text-slate-600">
-                  <Calendar className="w-3.5 h-3.5" />
-                  {event.date}
+            <div key={i} className={cn("rounded-2xl shadow-sm relative overflow-hidden border border-slate-100", event.cardBg)}>
+              {/* Left Bar */}
+              <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", event.leftBar)} />
+              
+              <div className="p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <h4 className="font-bold text-slate-900 pr-2">{event.title}</h4>
+                  <span className={cn(
+                    "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider shrink-0",
+                    event.badge
+                  )}>
+                    {event.type}
+                  </span>
                 </div>
-                <div className="flex items-center gap-2 text-xs text-slate-600">
-                  <Clock className="w-3.5 h-3.5" />
-                  {event.time}
-                </div>
-                <div className="flex items-center gap-2 text-xs text-slate-600">
-                  <MapPin className="w-3.5 h-3.5" />
-                  {event.loc}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <Calendar className="w-3.5 h-3.5" />
+                    {event.date}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <Clock className="w-3.5 h-3.5" />
+                    {event.time}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {event.loc}
+                  </div>
                 </div>
               </div>
             </div>
