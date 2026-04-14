@@ -20,6 +20,7 @@ import EmployeeProfile from './components/EmployeeProfile';
 import EventsScheduleView from './components/EventsScheduleView';
 import NotificationSidebar from './components/NotificationSidebar';
 import LoginPage from './components/LoginPage';
+// import GeminiChatbot from './components/GeminiChatbot';
 import { 
   Bell, 
   Search, 
@@ -243,6 +244,8 @@ export default function App() {
           isOpen={isNotificationsOpen} 
           onClose={() => setIsNotificationsOpen(false)} 
         />
+
+        {/* <GeminiChatbot /> */}
       </div>
     </div>
   );

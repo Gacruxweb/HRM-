@@ -1,4 +1,4 @@
-import { Employee, Department, LeaveRequest, PayrollRecord, PerformanceReview, AttendanceRecord, Role, BranchPerformance, ShiftRequest } from './types';
+import { Employee, Department, LeaveRequest, PayrollRecord, PerformanceReview, AttendanceRecord, Role, BranchPerformance, ShiftRequest, NoticeRecord } from './types';
 
 export const MOCK_EMPLOYEES: Employee[] = [
   {
@@ -773,5 +773,43 @@ export const MOCK_ROLES: Role[] = [
     description: 'Ensures the quality of the software through automated and manual testing.',
     permissions: ['Testing Tools', 'Bug Tracking', 'Release Validation'],
     employeeCount: 1
+  }
+];
+
+export const MOCK_NOTICES: NoticeRecord[] = [
+  {
+    id: '1',
+    title: 'Annual General Meeting',
+    content: 'The annual general meeting will be held on April 25th. All employees are required to attend.',
+    date: '2024-04-25',
+    priority: 'High',
+    status: 'Active',
+    targetType: 'All',
+    createdBy: 'Elena Rodriguez',
+    createdAt: '2024-04-10T09:00:00Z'
+  },
+  {
+    id: '2',
+    title: 'New Security Protocol',
+    content: 'Please update your passwords by the end of the week as part of our new security protocol.',
+    date: '2024-04-15',
+    priority: 'Medium',
+    status: 'Active',
+    targetType: 'Department',
+    targetDepartmentId: '1', // Engineering
+    targetShiftId: 'all',
+    createdBy: 'Marcus Chen',
+    createdAt: '2024-04-12T14:30:00Z'
+  },
+  {
+    id: '3',
+    title: 'Office Renovation',
+    content: 'The 3rd floor will be closed for renovation starting next Monday.',
+    date: '2024-04-20',
+    priority: 'Low',
+    status: 'Draft',
+    targetType: 'All',
+    createdBy: 'Sarah Jenkins',
+    createdAt: '2024-04-14T11:20:00Z'
   }
 ];

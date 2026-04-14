@@ -104,6 +104,10 @@ export interface EventRecord {
   location: string;
   type: 'Meeting' | 'Workshop' | 'Holiday' | 'Deadline' | 'Other';
   description?: string;
+  targetType?: 'All' | 'Department' | 'Employee';
+  targetDepartmentId?: string;
+  targetShiftId?: string;
+  targetEmployeeIds?: string[];
 }
 
 export interface ShiftRequest {
@@ -122,4 +126,19 @@ export interface ShiftRequest {
   status: 'Pending' | 'Approved' | 'Rejected';
   createdAt: string;
   isAdminCreated?: boolean;
+}
+
+export interface NoticeRecord {
+  id: string;
+  title: string;
+  content: string;
+  date: string;
+  priority: 'Low' | 'Medium' | 'High';
+  status: 'Active' | 'Archived' | 'Draft';
+  targetType: 'All' | 'Department' | 'Employee';
+  targetDepartmentId?: string;
+  targetShiftId?: string;
+  targetEmployeeIds?: string[];
+  createdBy: string;
+  createdAt: string;
 }
