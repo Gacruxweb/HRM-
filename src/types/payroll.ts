@@ -23,3 +23,13 @@ export interface TaxRuleRecord {
   taxRate: number;
   description: string;
 }
+
+export interface PayrollPolicyRecord {
+  id: string;
+  name: string;
+  category: 'Deduction' | 'Overtime' | 'Allowance' | 'Other';
+  countType: 'Daily basis' | 'Hourly basis' | 'Flat amount';
+  considerableValue: number;
+  adjustedValue: number;
+  description: string;
+}

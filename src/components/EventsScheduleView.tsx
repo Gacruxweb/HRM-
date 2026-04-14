@@ -25,7 +25,9 @@ import {
   Layers,
   CheckCircle2,
   AlertCircle,
-  User
+  User,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
@@ -473,6 +475,7 @@ export default function EventsScheduleView({ onBack }: EventsScheduleViewProps) 
     },
   ]);
 
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('All');
   const [locationFilter, setLocationFilter] = useState<string>('All');
@@ -1041,6 +1044,8 @@ export default function EventsScheduleView({ onBack }: EventsScheduleViewProps) 
       <SearchFilterBar 
         searchTerm={searchQuery}
         onSearchChange={setSearchQuery}
+        displayMode={viewMode}
+        onDisplayModeChange={setViewMode}
         searchPlaceholder="Search events by title or location..."
         onFilterClick={() => setIsFilterOpen(!isFilterOpen)}
         isFilterActive={typeFilter !== 'All' || locationFilter !== 'All'}
@@ -1140,89 +1145,179 @@ export default function EventsScheduleView({ onBack }: EventsScheduleViewProps) 
       />
 
       {/* Event List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredEvents.map((event) => {
-          const style = getEventStyle(event.type);
-          return (
-            <div 
-              key={event.id} 
-              className={cn(
-                "rounded-[24px] shadow-sm overflow-hidden hover:shadow-md transition-all relative group border border-slate-100",
-                style.cardBg
-              )}
-            >
-              {/* Left Bar */}
-              <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", style.leftBar)} />
-              
-              <div className="p-8">
-                <div className="flex justify-between items-start mb-6">
-                  <h3 className="text-xl font-bold text-slate-900 pr-4">
-                    {event.title}
-                  </h3>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className={cn(
-                      "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider", 
-                      style.badge
-                    )}>
-                      {event.type}
-                    </span>
-                    <ActionMenu items={getEventActions(event)} />
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <Calendar className="w-4 h-4" />
-                    <span className="text-sm font-medium">{event.date}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <Clock className="w-4 h-4" />
-                    <span className="text-sm font-medium">
-                      {event.startTime} {event.endTime ? `- ${event.endTime}` : ''}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <MapPin className="w-4 h-4" />
-                    <span className="text-sm font-medium">{event.location}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-slate-500">
-                    <Users className="w-4 h-4" />
-                    <span className="text-sm font-medium">
-                      {event.targetType === 'All' && 'Everyone'}
-                      {event.targetType === 'Department' && (
-                        event.targetDepartmentId === 'all' 
-                          ? 'All Depts' 
-                          : MOCK_DEPARTMENTS.find(d => d.id === event.targetDepartmentId)?.name || 'Dept'
-                      )}
-                      {event.targetType === 'Employee' && (
-                        event.targetEmployeeIds && event.targetEmployeeIds.length > 1 
-                          ? `${event.targetEmployeeIds.length} Employees`
-                          : 'Specific Employee'
-                      )}
-                      {!event.targetType && 'Everyone'}
-                    </span>
-                  </div>
-                </div>
-
-                {event.description && (
-                  <div className="mt-6 pt-6 border-t border-slate-200/50">
-                    <p className="text-xs text-slate-400 italic line-clamp-2">
-                      {event.description}
-                    </p>
-                  </div>
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredEvents.map((event) => {
+            const style = getEventStyle(event.type);
+            return (
+              <div 
+                key={event.id} 
+                className={cn(
+                  "rounded-[24px] shadow-sm overflow-hidden hover:shadow-md transition-all relative group border border-slate-100",
+                  style.cardBg
                 )}
+              >
+                {/* Left Bar */}
+                <div className={cn("absolute left-0 top-0 bottom-0 w-1.5", style.leftBar)} />
+                
+                <div className="p-8">
+                  <div className="flex justify-between items-start mb-6">
+                    <h3 className="text-xl font-bold text-slate-900 pr-4">
+                      {event.title}
+                    </h3>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className={cn(
+                        "px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider", 
+                        style.badge
+                      )}>
+                        {event.type}
+                      </span>
+                      <ActionMenu items={getEventActions(event)} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-slate-500">
+                      <Calendar className="w-4 h-4" />
+                      <span className="text-sm font-medium">{event.date}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-slate-500">
+                      <Clock className="w-4 h-4" />
+                      <span className="text-sm font-medium">
+                        {event.startTime} {event.endTime ? `- ${event.endTime}` : ''}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-slate-500">
+                      <MapPin className="w-4 h-4" />
+                      <span className="text-sm font-medium">{event.location}</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-slate-500">
+                      <Users className="w-4 h-4" />
+                      <span className="text-sm font-medium">
+                        {event.targetType === 'All' && 'Everyone'}
+                        {event.targetType === 'Department' && (
+                          event.targetDepartmentId === 'all' 
+                            ? 'All Depts' 
+                            : MOCK_DEPARTMENTS.find(d => d.id === event.targetDepartmentId)?.name || 'Dept'
+                        )}
+                        {event.targetType === 'Employee' && (
+                          event.targetEmployeeIds && event.targetEmployeeIds.length > 1 
+                            ? `${event.targetEmployeeIds.length} Employees`
+                            : 'Specific Employee'
+                        )}
+                        {!event.targetType && 'Everyone'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {event.description && (
+                    <div className="mt-6 pt-6 border-t border-slate-200/50">
+                      <p className="text-xs text-slate-400 italic line-clamp-2">
+                        {event.description}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
+            );
+          })}
+          {filteredEvents.length === 0 && (
+            <div className="col-span-full py-20 text-center bg-white rounded-3xl border border-dashed border-slate-300">
+              <Calendar className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-slate-900">No events found</h3>
+              <p className="text-slate-500">Try adjusting your search or filters.</p>
             </div>
-          );
-        })}
-        {filteredEvents.length === 0 && (
-          <div className="col-span-full py-20 text-center bg-white rounded-3xl border border-dashed border-slate-300">
-            <Calendar className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-slate-900">No events found</h3>
-            <p className="text-slate-500">Try adjusting your search or filters.</p>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      ) : (
+        <div className="bg-white rounded-3xl border border-slate-200 overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-separate border-spacing-0 min-w-[800px]">
+            <thead>
+              <tr className="bg-slate-50">
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200 first:rounded-tl-3xl last:rounded-tr-3xl">Event</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">Date & Time</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">Location</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">Audience</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right border-b border-slate-200 last:rounded-tr-3xl">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {filteredEvents.map((event) => {
+                const style = getEventStyle(event.type);
+                return (
+                  <tr key={event.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className={cn("w-1.5 h-10 rounded-full", style.leftBar)} />
+                        <div>
+                          <p className="font-bold text-slate-900">{event.title}</p>
+                          <span className={cn(
+                            "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider", 
+                            style.badge
+                          )}>
+                            {event.type}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-slate-600">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span className="text-sm font-medium">{event.date}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-400">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span className="text-xs font-medium">
+                            {event.startTime} {event.endTime ? `- ${event.endTime}` : ''}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-sm font-medium">{event.location}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Users className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-sm font-medium">
+                          {event.targetType === 'All' && 'Everyone'}
+                          {event.targetType === 'Department' && (
+                            event.targetDepartmentId === 'all' 
+                              ? 'All Depts' 
+                              : MOCK_DEPARTMENTS.find(d => d.id === event.targetDepartmentId)?.name || 'Dept'
+                          )}
+                          {event.targetType === 'Employee' && (
+                            event.targetEmployeeIds && event.targetEmployeeIds.length > 1 
+                              ? `${event.targetEmployeeIds.length} Employees`
+                              : 'Specific Employee'
+                          )}
+                          {!event.targetType && 'Everyone'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <ActionMenu items={getEventActions(event)} />
+                    </td>
+                  </tr>
+                );
+              })}
+              {filteredEvents.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-20 text-center">
+                    <Calendar className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                    <h3 className="text-lg font-bold text-slate-900">No events found</h3>
+                    <p className="text-slate-500">Try adjusting your search or filters.</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <ConfirmationModal 
         isOpen={deleteModal.isOpen}
@@ -1454,6 +1549,8 @@ export default function EventsScheduleView({ onBack }: EventsScheduleViewProps) 
       <SearchFilterBar 
         searchTerm={searchQuery}
         onSearchChange={setSearchQuery}
+        displayMode={viewMode}
+        onDisplayModeChange={setViewMode}
         searchPlaceholder="Search notices by title or content..."
         onFilterClick={() => setIsFilterOpen(!isFilterOpen)}
         isFilterActive={noticeStatusFilter !== 'All' || noticePriorityFilter !== 'All'}
@@ -1515,84 +1612,190 @@ export default function EventsScheduleView({ onBack }: EventsScheduleViewProps) 
       />
 
       {/* Notices List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {notices
-          .filter(notice => {
-            const matchesSearch = notice.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                                 notice.content.toLowerCase().includes(searchQuery.toLowerCase());
-            const matchesStatus = noticeStatusFilter === 'All' || notice.status === noticeStatusFilter;
-            const matchesPriority = noticePriorityFilter === 'All' || notice.priority === noticePriorityFilter;
-            return matchesSearch && matchesStatus && matchesPriority;
-          })
-          .map(notice => (
-            <motion.div
-              key={notice.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-white rounded-3xl border border-slate-200 overflow-hidden hover:shadow-xl hover:shadow-slate-200/50 transition-all group flex flex-col"
-            >
-              <div className="p-6 flex-1">
-                <div className="flex justify-between items-start mb-4">
-                  <div className={cn(
-                    "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
-                    getNoticePriorityStyle(notice.priority)
-                  )}>
-                    {notice.priority} Priority
-                  </div>
-                  <ActionMenu items={getNoticeActions(notice)} />
-                </div>
-
-                <h4 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">
-                  {notice.title}
-                </h4>
-                <p className="text-sm text-slate-500 line-clamp-3 mb-4 leading-relaxed">
-                  {notice.content}
-                </p>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <div className={cn(
-                    "px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1.5 border",
-                    getNoticeStatusStyle(notice.status)
-                  )}>
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {notices
+            .filter(notice => {
+              const matchesSearch = notice.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                   notice.content.toLowerCase().includes(searchQuery.toLowerCase());
+              const matchesStatus = noticeStatusFilter === 'All' || notice.status === noticeStatusFilter;
+              const matchesPriority = noticePriorityFilter === 'All' || notice.priority === noticePriorityFilter;
+              return matchesSearch && matchesStatus && matchesPriority;
+            })
+            .map(notice => (
+              <motion.div
+                key={notice.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-3xl border border-slate-200 overflow-hidden hover:shadow-xl hover:shadow-slate-200/50 transition-all group flex flex-col"
+              >
+                <div className="p-6 flex-1">
+                  <div className="flex justify-between items-start mb-4">
                     <div className={cn(
-                      "w-1.5 h-1.5 rounded-full",
-                      notice.status === 'Active' ? "bg-emerald-500 animate-pulse" : "bg-slate-400"
-                    )} />
-                    {notice.status}
+                      "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+                      getNoticePriorityStyle(notice.priority)
+                    )}>
+                      {notice.priority} Priority
+                    </div>
+                    <ActionMenu items={getNoticeActions(notice)} />
                   </div>
-                  <div className="px-2.5 py-1 bg-slate-50 text-slate-500 rounded-lg text-[10px] font-bold flex items-center gap-1.5 border border-slate-100">
-                    <Users className="w-3 h-3" />
-                    {notice.targetType === 'All' && 'Everyone'}
-                    {notice.targetType === 'Department' && (
-                      notice.targetDepartmentId === 'all' 
-                        ? 'All Depts' 
-                        : MOCK_DEPARTMENTS.find(d => d.id === notice.targetDepartmentId)?.name || 'Dept'
-                    )}
-                    {notice.targetType === 'Employee' && (
-                      notice.targetEmployeeIds && notice.targetEmployeeIds.length > 1 
-                        ? `${notice.targetEmployeeIds.length} Employees`
-                        : 'Specific Employee'
-                    )}
-                  </div>
-                </div>
-              </div>
 
-              <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 text-[10px] font-bold">
-                    {notice.createdBy.split(' ').map(n => n[0]).join('')}
+                  <h4 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                    {notice.title}
+                  </h4>
+                  <p className="text-sm text-slate-500 line-clamp-3 mb-4 leading-relaxed">
+                    {notice.content}
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    <div className={cn(
+                      "px-2.5 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1.5 border",
+                      getNoticeStatusStyle(notice.status)
+                    )}>
+                      <div className={cn(
+                        "w-1.5 h-1.5 rounded-full",
+                        notice.status === 'Active' ? "bg-emerald-500 animate-pulse" : "bg-slate-400"
+                      )} />
+                      {notice.status}
+                    </div>
+                    <div className="px-2.5 py-1 bg-slate-50 text-slate-500 rounded-lg text-[10px] font-bold flex items-center gap-1.5 border border-slate-100">
+                      <Users className="w-3 h-3" />
+                      {notice.targetType === 'All' && 'Everyone'}
+                      {notice.targetType === 'Department' && (
+                        notice.targetDepartmentId === 'all' 
+                          ? 'All Depts' 
+                          : MOCK_DEPARTMENTS.find(d => d.id === notice.targetDepartmentId)?.name || 'Dept'
+                      )}
+                      {notice.targetType === 'Employee' && (
+                        notice.targetEmployeeIds && notice.targetEmployeeIds.length > 1 
+                          ? `${notice.targetEmployeeIds.length} Employees`
+                          : 'Specific Employee'
+                      )}
+                    </div>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-600">{notice.createdBy}</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-slate-400">
-                  <Calendar className="w-3 h-3" />
-                  <span className="text-[10px] font-bold">{notice.date}</span>
+
+                <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-indigo-100 rounded-lg flex items-center justify-center text-indigo-600 text-[10px] font-bold">
+                      {notice.createdBy.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-600">{notice.createdBy}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-slate-400">
+                    <Calendar className="w-3 h-3" />
+                    <span className="text-[10px] font-bold">{notice.date}</span>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-      </div>
+              </motion.div>
+            ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-3xl border border-slate-200 overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left border-separate border-spacing-0 min-w-[900px]">
+            <thead>
+              <tr className="bg-slate-50">
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200 first:rounded-tl-3xl last:rounded-tr-3xl">Notice</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">Priority & Status</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">Audience</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">Posted By</th>
+                <th className="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right border-b border-slate-200 last:rounded-tr-3xl">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {notices
+                .filter(notice => {
+                  const matchesSearch = notice.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                       notice.content.toLowerCase().includes(searchQuery.toLowerCase());
+                  const matchesStatus = noticeStatusFilter === 'All' || notice.status === noticeStatusFilter;
+                  const matchesPriority = noticePriorityFilter === 'All' || notice.priority === noticePriorityFilter;
+                  return matchesSearch && matchesStatus && matchesPriority;
+                })
+                .map(notice => (
+                  <tr key={notice.id} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-6 py-5">
+                      <div className="max-w-xs">
+                        <p className="font-bold text-slate-900 line-clamp-1">{notice.title}</p>
+                        <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{notice.content}</p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex flex-col gap-1.5">
+                        <span className={cn(
+                          "w-fit px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border",
+                          getNoticePriorityStyle(notice.priority)
+                        )}>
+                          {notice.priority}
+                        </span>
+                        <div className={cn(
+                          "w-fit px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 border",
+                          getNoticeStatusStyle(notice.status)
+                        )}>
+                          <div className={cn(
+                            "w-1 h-1 rounded-full",
+                            notice.status === 'Active' ? "bg-emerald-500" : "bg-slate-400"
+                          )} />
+                          {notice.status}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Users className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-sm font-medium">
+                          {notice.targetType === 'All' && 'Everyone'}
+                          {notice.targetType === 'Department' && (
+                            notice.targetDepartmentId === 'all' 
+                              ? 'All Depts' 
+                              : MOCK_DEPARTMENTS.find(d => d.id === notice.targetDepartmentId)?.name || 'Dept'
+                          )}
+                          {notice.targetType === 'Employee' && (
+                            notice.targetEmployeeIds && notice.targetEmployeeIds.length > 1 
+                              ? `${notice.targetEmployeeIds.length} Employees`
+                              : 'Specific Employee'
+                          )}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-5 h-5 bg-indigo-100 rounded flex items-center justify-center text-indigo-600 text-[9px] font-bold">
+                            {notice.createdBy.split(' ').map(n => n[0]).join('')}
+                          </div>
+                          <span className="text-xs font-bold text-slate-600">{notice.createdBy}</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-slate-400">
+                          <Calendar className="w-3 h-3" />
+                          <span className="text-[10px] font-bold">{notice.date}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-right">
+                      <ActionMenu items={getNoticeActions(notice)} />
+                    </td>
+                  </tr>
+                ))}
+              {notices.filter(notice => {
+                const matchesSearch = notice.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                     notice.content.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesStatus = noticeStatusFilter === 'All' || notice.status === noticeStatusFilter;
+                const matchesPriority = noticePriorityFilter === 'All' || notice.priority === noticePriorityFilter;
+                return matchesSearch && matchesStatus && matchesPriority;
+              }).length === 0 && (
+                <tr>
+                  <td colSpan={5} className="py-20 text-center">
+                    <Bell className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+                    <h3 className="text-lg font-bold text-slate-900">No notices found</h3>
+                    <p className="text-slate-500">Try adjusting your search or filters.</p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {notices.length === 0 && (
         <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">

@@ -14,9 +14,13 @@ import {
   Layers,
   Users,
   Banknote,
-  CalendarDays
+  CalendarDays,
+  Scale,
+  Download
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import PayrollPolicyView from './PayrollPolicyView';
+import PayrollCycleView from './PayrollCycleView';
 
 interface PayrollSettingProps {
   onBack: () => void;
@@ -24,6 +28,10 @@ interface PayrollSettingProps {
 
 export default function PayrollSetting({ onBack }: PayrollSettingProps) {
   const [activeSubView, setActiveSubView] = useState<string | null>(null);
+
+  if (activeSubView === 'payroll-cycle') {
+    return <PayrollCycleView onBack={() => setActiveSubView(null)} />;
+  }
 
   if (activeSubView === 'salary-components') {
     const components = [
@@ -97,69 +105,6 @@ export default function PayrollSetting({ onBack }: PayrollSettingProps) {
                 ))}
               </tbody>
             </table>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (activeSubView === 'payroll-cycle') {
-    const cycles = [
-      { name: 'Standard Monthly', frequency: 'Monthly', payDay: 'Last Day of Month', cutoff: '25th of Month', isDefault: true },
-      { name: 'Contractor Bi-weekly', frequency: 'Bi-weekly', payDay: 'Every Second Friday', cutoff: 'Wednesday before Payday', isDefault: false },
-      { name: 'Part-time Weekly', frequency: 'Weekly', payDay: 'Every Monday', cutoff: 'Friday before Payday', isDefault: false },
-    ];
-
-    return (
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
-          <button onClick={() => setActiveSubView(null)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <span className="hover:text-slate-900 cursor-pointer" onClick={() => setActiveSubView(null)}>Payroll Setting</span>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-indigo-600 font-bold">Payroll Cycle</span>
-        </div>
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">Payroll Cycles</h2>
-              <p className="text-slate-500 mt-1">Define payment frequencies and cutoff dates.</p>
-            </div>
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-sm">
-              Create Cycle
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {cycles.map((cycle, i) => (
-              <div key={i} className={cn(
-                "p-6 rounded-2xl border transition-all",
-                cycle.isDefault ? "bg-indigo-50 border-indigo-200" : "bg-white border-slate-200"
-              )}>
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900">{cycle.name}</h3>
-                    {cycle.isDefault && <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest bg-white px-2 py-0.5 rounded-full border border-indigo-100">Default</span>}
-                  </div>
-                  <CalendarDays className="w-6 h-6 text-indigo-600" />
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Frequency</span>
-                    <span className="font-bold text-slate-900">{cycle.frequency}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Pay Day</span>
-                    <span className="font-bold text-slate-900">{cycle.payDay}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-slate-500">Cut-off Date</span>
-                    <span className="font-bold text-slate-900">{cycle.cutoff}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
@@ -383,27 +328,8 @@ export default function PayrollSetting({ onBack }: PayrollSettingProps) {
     );
   }
 
-  if (activeSubView === 'salary-components') {
-    return (
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center gap-2 text-sm text-slate-500">
-          <button onClick={() => setActiveSubView(null)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <span className="hover:text-slate-900 cursor-pointer" onClick={() => setActiveSubView(null)}>Payroll Setting</span>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-indigo-600 font-bold">Salary Components</span>
-        </div>
-        <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-          <h2 className="text-2xl font-bold text-slate-900 mb-4">Salary Components</h2>
-          <p className="text-slate-500">Configure earnings and deductions for payroll calculation.</p>
-          <div className="mt-8 p-12 text-center border-2 border-dashed border-slate-200 rounded-2xl">
-            <Layers className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 font-medium">Salary components configuration will be available here.</p>
-          </div>
-        </div>
-      </div>
-    );
+  if (activeSubView === 'policy') {
+    return <PayrollPolicyView onBack={() => setActiveSubView(null)} />;
   }
 
   if (activeSubView === 'tax-rules') {
@@ -495,13 +421,14 @@ export default function PayrollSetting({ onBack }: PayrollSettingProps) {
           <Settings className="w-5 h-5 text-indigo-600" />
           <h3 className="text-lg font-bold text-slate-900">Payroll Management Actions</h3>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
           {[
             { label: 'Salary Components', icon: Layers, color: 'bg-blue-500', onClick: () => setActiveSubView('salary-components') },
-            { label: 'Payroll Cycle', icon: CalendarDays, color: 'bg-emerald-500', onClick: () => {} },
+            { label: 'Payroll Cycle', icon: CalendarDays, color: 'bg-emerald-500', onClick: () => setActiveSubView('payroll-cycle') },
             { label: 'Tax Rules', icon: ShieldCheck, color: 'bg-purple-500', onClick: () => setActiveSubView('tax-rules') },
-            { label: 'Bank Settings', icon: Wallet, color: 'bg-rose-500', onClick: () => {} },
-            { label: 'Payslip Template', icon: FileText, color: 'bg-amber-500', onClick: () => {} },
+            { label: 'Bank Settings', icon: Wallet, color: 'bg-rose-500', onClick: () => setActiveSubView('bank-settings') },
+            { label: 'Payslip Template', icon: FileText, color: 'bg-amber-500', onClick: () => setActiveSubView('payslip-template') },
+            { label: 'Payroll Policy', icon: Scale, color: 'bg-indigo-500', onClick: () => setActiveSubView('policy') },
           ].map((action, i) => (
             <button 
               key={i} 

@@ -6,8 +6,8 @@ interface SearchFilterBarProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
   searchPlaceholder?: string;
-  displayMode?: 'grid' | 'table';
-  onDisplayModeChange?: (mode: 'grid' | 'table') => void;
+  displayMode?: 'grid' | 'list';
+  onDisplayModeChange?: (mode: 'grid' | 'list') => void;
   onFilterClick?: () => void;
   isFilterActive?: boolean;
   middleElement?: React.ReactNode;
@@ -55,10 +55,10 @@ export default function SearchFilterBar({
               <LayoutGrid className="w-5 h-5" />
             </button>
             <button 
-              onClick={() => onDisplayModeChange('table')}
+              onClick={() => onDisplayModeChange('list')}
               className={cn(
                 "p-2 rounded-xl transition-all duration-200",
-                displayMode === 'table' 
+                displayMode === 'list' 
                   ? "bg-white text-indigo-600 shadow-sm ring-1 ring-slate-200/50" 
                   : "text-slate-400 hover:text-slate-600"
               )}
