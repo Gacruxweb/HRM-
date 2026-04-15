@@ -21,6 +21,7 @@ import {
 import { cn } from '../lib/utils';
 import PayrollPolicyView from './PayrollPolicyView';
 import PayrollCycleView from './PayrollCycleView';
+import SalaryListView from './SalaryListView';
 
 interface PayrollSettingProps {
   onBack: () => void;
@@ -31,6 +32,10 @@ export default function PayrollSetting({ onBack }: PayrollSettingProps) {
 
   if (activeSubView === 'payroll-cycle') {
     return <PayrollCycleView onBack={() => setActiveSubView(null)} />;
+  }
+
+  if (activeSubView === 'salary-list') {
+    return <SalaryListView onBack={() => setActiveSubView(null)} />;
   }
 
   if (activeSubView === 'salary-components') {
@@ -421,7 +426,7 @@ export default function PayrollSetting({ onBack }: PayrollSettingProps) {
           <Settings className="w-5 h-5 text-indigo-600" />
           <h3 className="text-lg font-bold text-slate-900">Payroll Management Actions</h3>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {[
             { label: 'Salary Components', icon: Layers, color: 'bg-blue-500', onClick: () => setActiveSubView('salary-components') },
             { label: 'Payroll Cycle', icon: CalendarDays, color: 'bg-emerald-500', onClick: () => setActiveSubView('payroll-cycle') },
@@ -429,6 +434,7 @@ export default function PayrollSetting({ onBack }: PayrollSettingProps) {
             { label: 'Bank Settings', icon: Wallet, color: 'bg-rose-500', onClick: () => setActiveSubView('bank-settings') },
             { label: 'Payslip Template', icon: FileText, color: 'bg-amber-500', onClick: () => setActiveSubView('payslip-template') },
             { label: 'Payroll Policy', icon: Scale, color: 'bg-indigo-500', onClick: () => setActiveSubView('policy') },
+            { label: 'Salary List', icon: Users, color: 'bg-cyan-500', onClick: () => setActiveSubView('salary-list') },
           ].map((action, i) => (
             <button 
               key={i} 

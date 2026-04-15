@@ -33,3 +33,18 @@ export interface PayrollPolicyRecord {
   adjustedValue: number;
   description: string;
 }
+
+export interface EmployeeSalaryRecord {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  shift: string;
+  baseSalary: number;
+  lastPaidDate: string;
+  overtimeHours: number;
+  overtimeRate: number;
+  deductions: number;
+  allowances: number;
+  netSalary: number;
+}
